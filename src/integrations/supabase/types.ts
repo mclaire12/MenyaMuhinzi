@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_service_state: {
+        Row: {
+          paused: boolean
+          reason: string | null
+          requires: string | null
+          service: string
+          updated_at: string
+        }
+        Insert: {
+          paused?: boolean
+          reason?: string | null
+          requires?: string | null
+          service: string
+          updated_at?: string
+        }
+        Update: {
+          paused?: boolean
+          reason?: string | null
+          requires?: string | null
+          service?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       course_modules: {
         Row: {
           course_id: string
@@ -115,6 +139,44 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_articles: {
+        Row: {
+          body: string
+          created_by: string | null
+          id: string
+          status: string
+          title: string
+          updated_at: string
+          vegetable_id: string | null
+        }
+        Insert: {
+          body: string
+          created_by?: string | null
+          id?: string
+          status?: string
+          title: string
+          updated_at?: string
+          vegetable_id?: string | null
+        }
+        Update: {
+          body?: string
+          created_by?: string | null
+          id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          vegetable_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_articles_vegetable_id_fkey"
+            columns: ["vegetable_id"]
+            isOneToOne: false
+            referencedRelation: "vegetables"
             referencedColumns: ["id"]
           },
         ]
@@ -237,6 +299,47 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_requests: {
+        Row: {
+          created_at: string
+          id: string
+          reason: string
+          requested_role: Database["public"]["Enums"]["app_role"]
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reason: string
+          requested_role: Database["public"]["Enums"]["app_role"]
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reason?: string
+          requested_role?: Database["public"]["Enums"]["app_role"]
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -290,6 +393,11 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      resume_learning_ai: { Args: never; Returns: undefined }
+      review_staff_request: {
+        Args: { approve: boolean; request_id: string }
+        Returns: undefined
       }
     }
     Enums: {

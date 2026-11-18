@@ -2,6 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { BookOpen, CheckCircle2, Users } from "lucide-react";
 import { CourseLoading, LearningFeedback, LearningStat, SectionHeading } from "@/components/learning-ui";
+import { StaffAccess } from "@/components/staff-access";
+import { StaffApprovals } from "@/components/staff-approvals";
+import { BackLink } from "@/components/back-link";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { allLessons, coursesQuery } from "@/lib/learning";
@@ -38,16 +41,18 @@ function Studio() {
         <h1 className="text-3xl font-semibold">Ntabwo wemerewe</h1>
         <p className="mt-2 text-muted-foreground">Iki gice ni icy'abafasha n'abayobozi gusa.</p>
         <Button asChild variant="outline" className="mt-5"><Link to="/dashboard">Subira ku byanjye</Link></Button>
+        <StaffAccess />
       </div>
     );
   }
 
   const learners = new Set(stats?.enrollments.map((e) => e.user_id)).size;
   return (
-    <div className="page-width pb-14">
+    <div className="page-width pb-14"><BackLink to="/dashboard" label="Subira ku byanjye" />
       <div className="page-heading"><div><p className="eyebrow mb-3">INCAMAKE Y’AMASOMO</p><h1>Ubuyobozi</h1><p className="mt-3 text-muted-foreground">Uruhare: {roles.join(", ")}</p></div><span className="icon-tile"><Users aria-hidden /></span></div>
       {statsState.isLoading || coursesState.isLoading ? <CourseLoading /> : statsState.isError || coursesState.isError ? <LearningFeedback error retry={() => { statsState.refetch(); coursesState.refetch(); }} /> : <>
       <div className="mb-10 grid gap-4 sm:grid-cols-3"><LearningStat label="Abiga" value={learners} icon={Users} /><LearningStat label="Kwiyandikisha" value={stats?.enrollments.length ?? 0} icon={BookOpen} /><LearningStat label="Amasomo yarangiye" value={stats?.completions.length ?? 0} icon={CheckCircle2} /></div>
+      <Button asChild className="mb-6"><Link to="/manage">Gutunganya amasomo n’isomero</Link></Button>
       <SectionHeading title="Amasomo n’abiga" eyebrow="AMAKURU Y’AMASOMO" />
       <div className="staff-table">
         <Table>
@@ -65,6 +70,7 @@ function Studio() {
         </Table>
       </div>
       {!courses?.length && <LearningFeedback />}
+      {roles.includes("admin") && <StaffApprovals />}
       </>}
     </div>
   );

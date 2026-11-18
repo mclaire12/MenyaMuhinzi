@@ -1,6 +1,8 @@
-# MenyaMuhinzi redesign
-- [x] Establish agricultural tokens and shared navigation, buttons, course cards and feedback states.
-- [x] Redesign home, course catalogue, course detail and sign-in.
-- [x] Redesign farmer dashboard, lesson experience and staff overview without changing access or learning rules.
-- [x] Verify public and signed-in farmer flows, mobile layouts and existing tests; staff access remains correctly restricted.
-- [ ] Verify populated staff overview with a staff account — blocked by no available staff session; do not elevate the existing farmer.
+# MenyaMuhinzi next features
+- [ ] Add staff access requests, admin approval and course/lesson/library management with enforced permissions.
+- [ ] Bootstrap first administrator — awaiting owner’s account email.
+- [ ] Add a grounded AI Gateway assistant on lesson pages.
+- [ ] Test signup, confirmation and signin; improve account recovery and confirmation states.
+- [ ] Add contextual back navigation and a welcome section.
+- [ ] Provide role-account access — awaiting real account email addresses; never retrieve or expose existing passwords.
+- [ ] Verify farmer and staff flows, AI streaming, mobile layouts and tests.

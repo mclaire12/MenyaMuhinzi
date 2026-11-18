@@ -43,6 +43,7 @@ function Index() {
       <div className="photo-caption"><Sprout className="size-4" aria-hidden /><span>Ku bahinzi bose b'u Rwanda</span></div>
     </section>
     <section className="border-b bg-card"><div className="page-width ways-grid">{ways.map(w => <div key={w.title} className="way-item"><w.icon className="size-6 shrink-0 text-primary" aria-hidden /><div><h2 className="font-sans text-base font-bold">{w.title}</h2><p className="mt-1 text-xs leading-relaxed text-muted-foreground">{w.text}</p></div></div>)}</div></section>
+    <section className="page-width section-space"><p className="eyebrow mb-3">MURAKAZA NEZA</p><h2 className="text-3xl">Murakaza neza kuri MenyaMuhinzi</h2><p className="mt-4 max-w-2xl leading-relaxed text-muted-foreground">Dufatanyije, twongera ubumenyi bw’ubuhinzi bw’imboga. Tangira isomo rya mbere cyangwa ukomereze aho wari ugeze.</p></section>
     <section className="page-width section-space"><SectionHeading eyebrow="KURA UBUMENYI BWAWE" title="Ni iki ushaka guhinga?" link />
       {isLoading ? <CourseLoading /> : isError ? <LearningFeedback error retry={() => refetch()} /> : courses?.length ? <div className="grid gap-6 md:grid-cols-3">{courses.map(c => <CourseCard key={c.id} course={c} />)}</div> : <LearningFeedback />}
     </section>

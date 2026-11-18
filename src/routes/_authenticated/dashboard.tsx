@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, BookOpen, CheckCircle2, Phone, Sprout } from "lucide-react";
+import { BackLink } from "@/components/back-link";
 import { Button } from "@/components/ui/button";
 import { CourseCard } from "@/components/course-card";
 import { CourseLoading, LearningFeedback, LearningStat, SectionHeading } from "@/components/learning-ui";
@@ -30,7 +31,7 @@ function Dashboard() {
   const recent = [...(mine?.progress ?? [])].filter(p => p.status === "completed").sort((a, b) => (b.completed_at ?? "").localeCompare(a.completed_at ?? "")).slice(0, 5);
   const loading = coursesState.isLoading || mineState.isLoading;
   const error = coursesState.isError || mineState.isError;
-  return <div className="page-width pb-14">
+  return <div className="page-width pb-14"><BackLink />
     <div className="page-heading"><div><p className="eyebrow mb-3">URUGENDO RWAWE RW'UBUMENYI</p><h1>Muraho{profile?.full_name ? `, ${profile.full_name}` : ""}!</h1><p className="mt-3 text-muted-foreground">{profile?.district ? `${profile.district} · ` : ""}Buri somo ni intambwe igana ku musaruro mwiza.</p></div><span className="icon-tile"><Sprout aria-hidden /></span></div>
     {loading ? <CourseLoading /> : error ? <LearningFeedback error retry={() => { coursesState.refetch(); mineState.refetch(); }} /> : <>
       <div className="dashboard-bento">
@@ -40,6 +41,7 @@ function Dashboard() {
       {enrolled.length > 0 && <section className="mb-12"><SectionHeading title="Amasomo yanjye" eyebrow="KOMEREZA AHO WARI UGEZE" /><div className="grid gap-6 md:grid-cols-3">{enrolled.map(c => <CourseCard key={c.id} course={c} enrolled pct={courseProgress(c, completed).pct} />)}</div></section>}
       {others.length > 0 && <section className="mb-12"><SectionHeading title="Andi masomo" eyebrow="IGA IBISHYA" /><div className="grid gap-6 md:grid-cols-3">{others.map(c => <CourseCard key={c.id} course={c} />)}</div></section>}
       <section><SectionHeading title="Ibyo naherukaga kwiga" />{recent.length === 0 ? <LearningFeedback title="Urugendo rwawe rutangiye" text="Amasomo urangije azagaragara hano." /> : <ul className="lesson-list">{recent.map(p => { const x = lessonIndex.get(p.lesson_id); return <li key={p.lesson_id} className="flex flex-wrap items-center gap-3 py-5"><CheckCircle2 className="size-5 text-primary" aria-hidden /><span className="min-w-0 flex-1"><b className="block text-sm">{x?.l.title}</b><span className="text-xs text-muted-foreground">{x?.c.title}</span></span><span className="flex items-center gap-1 text-xs text-muted-foreground"><Phone className="size-3.5" aria-hidden />{channelLabel[p.channel]}</span></li>; })}</ul>}</section>
+      <Button asChild variant="link" className="mt-8 px-0"><Link to="/studio">Saba uburenganzira bw’abakozi</Link></Button>
     </>}
   </div>;
 }

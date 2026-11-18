@@ -8,6 +8,13 @@
       "when": 1795016682860,
       "tag": "0000_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795021422446,
+      "tag": "0001_staff_approval_library_ai_guard",
+      "breakpoints": true
     }
   ]
 }
