@@ -46,14 +46,14 @@ function LessonPage() {
       { user_id: uid!, lesson_id: lessonId, status: "completed", completed_at: new Date().toISOString(), updated_at: new Date().toISOString() },
       { onConflict: "user_id,lesson_id" },
     );
-    if (error) return toast.error("Ntibyakunze kubika.");
+    if (error) { toast.error("Ntibyakunze kubika."); return; }
     toast.success("Isomo rirangiye!");
     qc.invalidateQueries({ queryKey: ["my-learning"] });
   }
 
   function toggleSpeak() {
     const s = window.speechSynthesis;
-    if (!s) return toast.error("Telefoni yawe ntishobora gusoma mu ijwi.");
+    if (!s || !lesson) { toast.error("Telefoni yawe ntishobora gusoma mu ijwi."); return; }
     if (speaking) { s.cancel(); setSpeaking(false); return; }
     const u = new SpeechSynthesisUtterance(`${lesson.title}. ${lesson.body}`);
     u.lang = "rw-RW";

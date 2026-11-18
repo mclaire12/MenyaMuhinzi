@@ -42,12 +42,12 @@ function AuthPage() {
         options: { emailRedirectTo: window.location.origin, data: { full_name: f.get("name"), phone: f.get("phone") } },
       });
       setBusy(false);
-      if (error) return toast.error(error.message);
+      if (error) { toast.error(error.message); return; }
       toast.success("Reba email yawe kugira ngo wemeze konti.");
     } else {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       setBusy(false);
-      if (error) return toast.error("Email cyangwa ijambo ry'ibanga si byo.");
+      if (error) toast.error("Email cyangwa ijambo ry'ibanga si byo.");
     }
   }
 

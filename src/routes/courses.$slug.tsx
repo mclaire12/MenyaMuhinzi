@@ -40,9 +40,9 @@ function CoursePage() {
   const prog = courseProgress(course, completed);
 
   async function enroll() {
-    if (!session) return navigate({ to: "/auth" });
+    if (!session) { navigate({ to: "/auth" }); return; }
     const { error } = await supabase.from("enrollments").insert({ user_id: session.user.id, course_id: course!.id });
-    if (error) return toast.error("Ntibyakunze. Ongera ugerageze.");
+    if (error) { toast.error("Ntibyakunze. Ongera ugerageze."); return; }
     toast.success("Wiyandikishije!");
     await qc.invalidateQueries({ queryKey: ["my-learning"] });
   }
