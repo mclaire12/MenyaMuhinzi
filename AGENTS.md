@@ -28,3 +28,9 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+- Farmer-facing copy is Kinyarwanda-first; keep strings in components until an i18n layer is added (planned for English/French).
+- Data access uses the browser client with row-level security; roles live only in `user_roles` and are checked with `has_role` — never on profiles.
+- Learning progress rows carry a `channel` (web/ussd/ivr) so USSD/IVR and web share one learner record.
+- New signups get the `farmer` role via the `handle_new_user` trigger; staff roles are granted by admins.
