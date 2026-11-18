@@ -1,52 +1,55 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { BookOpen, CheckCircle2, Users } from "lucide-react";
+import { CourseLoading, LearningFeedback, LearningStat, SectionHeading } from "@/components/learning-ui";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { allLessons, coursesQuery } from "@/lib/learning";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/studio")({
-  head: () => ({ meta: [{ title: "Ubuyobozi — MenyaMuhinzi" }, { name: "description", content: "Imbonerahamwe y'abafasha n'abayobozi." }] }),
+  head: () => ({ meta: [{ title: "Ubuyobozi — MenyaMuhinzi" }, { name: "description", content: "Imbonerahamwe y'abafasha n'abayobozi." }, { property: "og:title", content: "Ubuyobozi — MenyaMuhinzi" }, { property: "og:description", content: "Abiga, kwiyandikisha n’amasomo yarangiye." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: Studio,
 });
 
 function Studio() {
   const { isStaff, roles } = useAuth();
-  const { data: courses } = useQuery(coursesQuery);
-  const { data: stats } = useQuery({
+  const coursesState = useQuery(coursesQuery);
+  const { data: courses } = coursesState;
+  const statsState = useQuery({
     queryKey: ["studio-stats"], enabled: isStaff,
     queryFn: async () => {
       const [e, p] = await Promise.all([
         supabase.from("enrollments").select("course_id, user_id"),
         supabase.from("lesson_progress").select("lesson_id, status").eq("status", "completed"),
       ]);
+      if (e.error) throw e.error;
+      if (p.error) throw p.error;
       return { enrollments: e.data ?? [], completions: p.data ?? [] };
     },
   });
+
+  const { data: stats } = statsState;
 
   if (!isStaff) {
     return (
       <div className="mx-auto max-w-xl px-4 py-16 text-center">
         <h1 className="text-3xl font-semibold">Ntabwo wemerewe</h1>
         <p className="mt-2 text-muted-foreground">Iki gice ni icy'abafasha n'abayobozi gusa.</p>
-        <Link to="/dashboard" className="mt-4 inline-block font-bold text-primary">Subira ku byanjye</Link>
+        <Button asChild variant="outline" className="mt-5"><Link to="/dashboard">Subira ku byanjye</Link></Button>
       </div>
     );
   }
 
   const learners = new Set(stats?.enrollments.map((e) => e.user_id)).size;
   return (
-    <div className="mx-auto max-w-6xl space-y-8 px-4 py-10">
-      <div>
-        <h1 className="text-4xl font-semibold">Ubuyobozi</h1>
-        <p className="text-muted-foreground">Uruhare: {roles.join(", ")}</p>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-3">
-        {[["Abiga", learners], ["Kwiyandikisha", stats?.enrollments.length ?? 0], ["Amasomo yarangiye", stats?.completions.length ?? 0]].map(([k, v]) => (
-          <div key={k} className="rounded-2xl border bg-card p-5"><p className="text-muted-foreground">{k}</p><p className="font-display text-4xl font-semibold">{v}</p></div>
-        ))}
-      </div>
-      <div className="rounded-2xl border bg-card">
+    <div className="page-width pb-14">
+      <div className="page-heading"><div><p className="eyebrow mb-3">INCAMAKE Y’AMASOMO</p><h1>Ubuyobozi</h1><p className="mt-3 text-muted-foreground">Uruhare: {roles.join(", ")}</p></div><span className="icon-tile"><Users aria-hidden /></span></div>
+      {statsState.isLoading || coursesState.isLoading ? <CourseLoading /> : statsState.isError || coursesState.isError ? <LearningFeedback error retry={() => { statsState.refetch(); coursesState.refetch(); }} /> : <>
+      <div className="mb-10 grid gap-4 sm:grid-cols-3"><LearningStat label="Abiga" value={learners} icon={Users} /><LearningStat label="Kwiyandikisha" value={stats?.enrollments.length ?? 0} icon={BookOpen} /><LearningStat label="Amasomo yarangiye" value={stats?.completions.length ?? 0} icon={CheckCircle2} /></div>
+      <SectionHeading title="Amasomo n’abiga" eyebrow="AMAKURU Y’AMASOMO" />
+      <div className="staff-table">
         <Table>
           <TableHeader><TableRow><TableHead>Isomo</TableHead><TableHead>Ibice</TableHead><TableHead>Amasomo</TableHead><TableHead>Abiyandikishije</TableHead></TableRow></TableHeader>
           <TableBody>
@@ -61,6 +64,8 @@ function Studio() {
           </TableBody>
         </Table>
       </div>
+      {!courses?.length && <LearningFeedback />}
+      </>}
     </div>
   );
 }

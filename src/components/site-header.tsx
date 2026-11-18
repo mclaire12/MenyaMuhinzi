@@ -1,41 +1,35 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Sprout } from "lucide-react";
+import { ArrowUpRight, BookOpen, LayoutDashboard, LogOut, Menu, Sprout, X } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 
 export function SiteHeader() {
   const { session, isStaff } = useAuth();
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const qc = useQueryClient();
-
   async function signOut() {
-    await qc.cancelQueries();
-    qc.clear();
-    await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
+    await qc.cancelQueries(); qc.clear(); await supabase.auth.signOut();
+    setOpen(false); navigate({ to: "/auth", replace: true });
   }
-
-  return (
-    <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
-        <Link to="/" className="flex items-center gap-2 font-display text-xl font-semibold text-primary">
-          <Sprout className="size-6" aria-hidden /> MenyaMuhinzi
-        </Link>
-        <nav className="flex items-center gap-1 sm:gap-2">
-          <Button asChild variant="ghost"><Link to="/courses">Amasomo</Link></Button>
-          {session ? (
-            <>
-              <Button asChild variant="ghost"><Link to="/dashboard">Ibyanjye</Link></Button>
-              {isStaff && <Button asChild variant="ghost" className="hidden sm:inline-flex"><Link to="/studio">Ubuyobozi</Link></Button>}
-              <Button variant="outline" onClick={signOut}>Sohoka</Button>
-            </>
-          ) : (
-            <Button asChild><Link to="/auth">Injira</Link></Button>
-          )}
-        </nav>
+  const navigation = <>
+    <Button asChild variant="ghost"><Link to="/courses" activeProps={{ className: "nav-active" }} onClick={() => setOpen(false)}><BookOpen aria-hidden />Amasomo</Link></Button>
+    {session && <Button asChild variant="ghost"><Link to="/dashboard" activeProps={{ className: "nav-active" }} onClick={() => setOpen(false)}><LayoutDashboard aria-hidden />Ibyanjye</Link></Button>}
+    {session && isStaff && <Button asChild variant="ghost"><Link to="/studio" activeProps={{ className: "nav-active" }} onClick={() => setOpen(false)}>Ubuyobozi</Link></Button>}
+  </>;
+  return <header className="site-header">
+    <div className="page-width flex h-20 items-center justify-between gap-3">
+      <Link to="/" className="brand" aria-label="MenyaMuhinzi — Ahabanza"><span className="brand-mark"><Sprout aria-hidden /></span><span>Menya<span className="text-primary">Muhinzi</span></span></Link>
+      <nav aria-label="Ibikubiyemo" className="hidden items-center gap-2 md:flex">{navigation}</nav>
+      <div className="flex items-center gap-2">
+        <span className="mr-3 hidden text-xs font-bold text-muted-foreground lg:inline">KINYARWANDA</span>
+        {session ? <Button variant="outline" onClick={signOut} className="hidden md:inline-flex"><LogOut aria-hidden />Sohoka</Button> : <Button asChild><Link to="/auth">Injira <ArrowUpRight aria-hidden /></Link></Button>}
+        <Button variant="ghost" size="icon" className="md:hidden" aria-label={open ? "Funga ibikubiyemo" : "Fungura ibikubiyemo"} aria-expanded={open} aria-controls="mobile-navigation" onClick={() => setOpen(!open)}>{open ? <X /> : <Menu />}</Button>
       </div>
-    </header>
-  );
+    </div>
+    {open && <nav id="mobile-navigation" aria-label="Ibikubiyemo bya telefoni" className="mobile-navigation">{navigation}{session && <Button variant="outline" onClick={signOut}><LogOut aria-hidden />Sohoka</Button>}</nav>}
+  </header>;
 }

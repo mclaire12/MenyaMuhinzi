@@ -34,3 +34,7 @@ use the editor.
 - Data access uses the browser client with row-level security; roles live only in `user_roles` and are checked with `has_role` — never on profiles.
 - Learning progress rows carry a `channel` (web/ussd/ivr) so USSD/IVR and web share one learner record.
 - New signups get the `farmer` role via the `handle_new_user` trigger; staff roles are granted by admins.
+
+## Presentation architecture
+- Shared learning feedback, loading, section headings and metrics live in `learning-ui.tsx`; this keeps public and role-specific screens visually consistent without duplicating data access.
+- Global semantic tokens and named layout classes define the agricultural theme; crop treatments are scoped by a data attribute so accents remain contextual.
