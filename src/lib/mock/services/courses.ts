@@ -6,6 +6,11 @@ import { canEditCourse, facilitatorActions, type ActorPermissions, type CourseAc
 
 export type Actor = { id: string; name: string };
 
+export const ADMIN_ACTOR_ID = "admin";
+
+/** Facilitators edit drafts only; the administrator may also correct live courses, which farmers see at once. */
+export const canActorEdit = (course: Pick<Course, "status">, actor: Actor) => canEditCourse(course) || (actor.id === ADMIN_ACTOR_ID && course.status !== "archived");
+
 export const managedCourses = (state: LearningState, facilitatorId: string) => state.courses.filter((course) => course.ownerId === facilitatorId);
 
 export function courseLearnerIds(state: LearningState, courseId: string) {
@@ -27,7 +32,7 @@ function logRevision(state: LearningState, course: Course, actor: Actor, summary
 
 function editCourse(courseId: string, actor: Actor, summary: string, change: (course: Course) => Course) {
   const course = getLearningState().courses.find((item) => item.id === courseId);
-  if (!course || !canEditCourse(course)) return false;
+  if (!course || !canActorEdit(course, actor)) return false;
   mutate((state) => {
     const next = { ...change(course), updatedAt: nowIso() };
     return logRevision({ ...state, courses: state.courses.map((item) => (item.id === courseId ? next : item)) }, next, actor, summary);
@@ -60,6 +65,8 @@ export function duplicateCourse(actor: Actor, courseId: string) {
     modules: source.modules.map((module, m) => ({ ...module, id: `${id}-m${m + 1}`, lessons: module.lessons.map((lesson, l) => ({ ...lesson, id: `${id}-m${m + 1}-l${l + 1}`, videoScenes: lesson.videoScenes.map((scene) => ({ ...scene, id: newId("s") })) })) })),
   };
   delete copy.publishedAt;
+  delete copy.audience;
+  delete copy.publications;
   mutate((state) => logRevision({ ...state, courses: [copy, ...state.courses] }, copy, actor, `Duplicated from "${source.title}"`));
   return id;
 }
@@ -145,7 +152,7 @@ export function findLesson(state: LearningState, lessonId: string) {
 
 export function addResource(actor: Actor, values: Omit<LearningResource, "id" | "createdAt">) {
   const course = getLearningState().courses.find((item) => item.id === values.courseId);
-  if (!course || !canEditCourse(course)) return false;
+  if (!course || !canActorEdit(course, actor)) return false;
   mutate((state) => logRevision({ ...state, resources: [{ ...values, id: newId("res"), createdAt: nowIso() }, ...state.resources] }, course, actor, `Resource added: ${values.title}`));
   return true;
 }
@@ -154,7 +161,7 @@ export function removeResource(actor: Actor, resourceId: string) {
   const state = getLearningState();
   const resource = state.resources.find((item) => item.id === resourceId);
   const course = state.courses.find((item) => item.id === resource?.courseId);
-  if (!resource || !course || !canEditCourse(course)) return false;
+  if (!resource || !course || !canActorEdit(course, actor)) return false;
   mutate((current) => logRevision({ ...current, resources: current.resources.filter((item) => item.id !== resourceId) }, course, actor, `Resource removed: ${resource.title}`));
   return true;
 }

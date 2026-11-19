@@ -1,16 +1,26 @@
 import { mutate, newId, nowIso } from "@/lib/mock/store";
-import type { FarmerGroup, LearningState } from "@/lib/mock/types";
+import type { Farmer, FarmerGroup, LearningState } from "@/lib/mock/types";
 
-export const myGroups = (state: LearningState, facilitatorId: string) => state.groups.filter((group) => group.facilitatorId === facilitatorId);
+export const canManageGroup = (group: FarmerGroup, facilitatorId: string) => group.facilitatorId === facilitatorId || !!group.managerIds?.includes(facilitatorId);
 
-export type GroupValues = Pick<FarmerGroup, "name" | "province" | "district" | "sector" | "cell" | "village" | "crop" | "programme">;
+export const myGroups = (state: LearningState, facilitatorId: string) => state.groups.filter((group) => canManageGroup(group, facilitatorId));
+
+export const managedGroup = (state: LearningState, facilitatorId: string, groupId: string) => myGroups(state, facilitatorId).find((group) => group.id === groupId) ?? null;
+
+/** Existing farmer accounts this facilitator may place in a group: their own farmers plus members of groups they manage. */
+export function eligibleFarmers(state: LearningState, facilitatorId: string): Farmer[] {
+  const memberIds = new Set(myGroups(state, facilitatorId).flatMap((group) => group.memberIds));
+  return state.farmers.filter((farmer) => farmer.facilitatorId === facilitatorId || memberIds.has(farmer.id));
+}
+
+export type GroupValues = Pick<FarmerGroup, "name" | "province" | "district" | "sector" | "cell" | "village" | "crop" | "programme"> & { description: string; contactPerson: string; notes: string };
 
 function note(group: FarmerGroup, text: string): FarmerGroup {
   return { ...group, activity: [{ at: nowIso(), text }, ...group.activity].slice(0, 30) };
 }
 
 function change(state: LearningState, groupId: string, facilitatorId: string, update: (group: FarmerGroup) => FarmerGroup) {
-  return { ...state, groups: state.groups.map((group) => (group.id === groupId && group.facilitatorId === facilitatorId ? update(group) : group)) };
+  return { ...state, groups: state.groups.map((group) => (group.id === groupId && canManageGroup(group, facilitatorId) ? update(group) : group)) };
 }
 
 export function createGroup(facilitatorId: string, values: GroupValues) {
@@ -24,7 +34,8 @@ export const updateGroup = (groupId: string, facilitatorId: string, values: Grou
 
 export function addMembers(groupId: string, facilitatorId: string, farmerIds: string[]) {
   mutate((state) => {
-    const allowed = farmerIds.filter((id) => state.farmers.some((farmer) => farmer.id === id && farmer.facilitatorId === facilitatorId));
+    const eligible = new Set(eligibleFarmers(state, facilitatorId).map((farmer) => farmer.id));
+    const allowed = farmerIds.filter((id) => eligible.has(id));
     const names = state.farmers.filter((farmer) => allowed.includes(farmer.id)).map((farmer) => farmer.name).join(", ");
     return change(state, groupId, facilitatorId, (group) => note({ ...group, memberIds: [...new Set([...group.memberIds, ...allowed])] }, `Abanyamuryango bongewemo: ${names}`));
   });

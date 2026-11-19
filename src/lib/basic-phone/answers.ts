@@ -1,3 +1,4 @@
+import { featureFallback } from "@/lib/admin/chatbot-routing";
 import { updateAdmin } from "@/lib/admin/store";
 import type { ChannelSession } from "@/lib/admin/types";
 import { groundedAnswer } from "@/lib/mock/services/course-answer";
@@ -67,7 +68,8 @@ export async function answerLessonQuestion(input: LessonQuestion): Promise<Lesso
   const state = getLearningState();
   const course = state.courses.find((item) => item.id === input.courseId && item.status === "published");
   if (!course) throw new MockServiceError("course_unavailable");
-  const grounded = groundedAnswer(course, input.lessonId, input.question, input.language);
+  const fallback = featureFallback("farmer_assistant");
+  const grounded = fallback ? { kind: "outside" as const, text: fallback, lesson: null } : groundedAnswer(course, input.lessonId, input.question, input.language);
   const id = newId("aq");
   const lesson = grounded.lesson;
   mutate((current) => ({

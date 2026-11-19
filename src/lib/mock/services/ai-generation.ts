@@ -1,3 +1,4 @@
+import { featureFallback } from "@/lib/admin/chatbot-routing";
 import { composeCourse, composeLesson, composeModule } from "@/lib/mock/ai-compose";
 import { assessmentFromGenerated, courseFromGenerated } from "@/lib/mock/builders";
 import { blockingIssues } from "@/lib/mock/quality";
@@ -17,6 +18,8 @@ export function validateInput(input: GenerationInput) {
 }
 
 async function simulate<T>(ms: number, make: () => T) {
+  const unavailable = featureFallback("course_generation");
+  if (unavailable) throw new MockServiceError(`The course generation assistant is switched off by the administrator. ${unavailable}`);
   await wait(ms);
   if (takeSimulatedFailure()) throw new MockServiceError("The AI service did not respond. Try again.");
   return make();

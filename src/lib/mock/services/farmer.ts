@@ -1,5 +1,7 @@
 import { courseLessons } from "@/lib/mock/builders";
+import { featureFallback } from "@/lib/admin/chatbot-routing";
 import { cropOf } from "@/lib/mock/crops";
+import { availableCourses, learnerViewer } from "@/lib/mock/services/availability";
 import { groundedAnswer } from "@/lib/mock/services/course-answer";
 import { learnerIdFor } from "@/lib/mock/services/learners";
 import { getLearningState, MockServiceError, mutate, newId, nowIso, takeSimulatedFailure, wait } from "@/lib/mock/store";
@@ -39,14 +41,14 @@ export function saveFarmerSettings(accountId: string, values: Omit<FarmerSetting
   });
 }
 
-export type FarmerNotice = { id: string; kind: "published" | "assigned" | "reminder" | "update" | "result"; title: string; text: string; at: string; slug: string; courseId: string; read: boolean };
+export type FarmerNotice = { id: string; kind: "published" | "assigned" | "reminder" | "update" | "result" | "material"; title: string; text: string; at: string; slug: string; courseId: string; read: boolean; materialId?: string };
 
 export function farmerNotices(state: LearningState, accountId: string): FarmerNotice[] {
   const learnerId = learnerIdFor(state, accountId);
   const settings = settingsFor(state, learnerId);
   const read = new Set(state.noticeReads.filter((item) => item.learnerId === learnerId).map((item) => item.noticeId));
   const rows: FarmerNotice[] = [];
-  const published = state.courses.filter((course) => course.status === "published");
+  const published = availableCourses(state, learnerViewer(state, learnerId));
   if (settings.notifyNew) {
     published.filter((course) => course.publishedAt).forEach((course) => rows.push({ id: `pub-${course.id}`, kind: "published", title: "Isomo rishya", text: course.title, at: course.publishedAt!, slug: course.slug, courseId: course.id, read: false }));
   }
@@ -55,6 +57,11 @@ export function farmerNotices(state: LearningState, accountId: string): FarmerNo
       const course = published.find((course) => course.id === item.courseId);
       if (!course) return;
       rows.push({ id: `asg-${item.id}`, kind: "assigned", title: "Wahawe isomo", text: course.title, at: item.assignedAt, slug: course.slug, courseId: course.id, read: false });
+    });
+    const groupIds = new Set(state.groups.filter((group) => group.memberIds.includes(learnerId)).map((group) => group.id));
+    state.materials.filter((item) => item.status === "published").forEach((material) => {
+      const publication = material.publications.find((item) => item.groupIds.some((id) => groupIds.has(id)));
+      if (publication) rows.push({ id: `mat-${material.id}`, kind: "material", title: "Inyigisho y'itsinda ryawe", text: material.title, at: publication.at, slug: "", courseId: "", read: false, materialId: material.id });
     });
   }
   if (settings.notifyReminder) {
@@ -132,9 +139,9 @@ export function submitAssessment(accountId: string, courseId: string, answers: R
   return graded;
 }
 
-export type AssistantReply = { answer: string; lessonId: string | null; lessonTitle: string | null; courseId: string };
+export type AssistantReply = { answer: string; lessonId: string | null; lessonTitle: string | null; courseId: string; chatId: string };
 
-export async function askFarmer(accountId: string, courseId: string, lessonId: string | null, question: string): Promise<AssistantReply> {
+export async function askFarmer(accountId: string, courseId: string, lessonId: string | null, question: string, chatId?: string): Promise<AssistantReply> {
   await wait();
   if (takeSimulatedFailure()) throw new MockServiceError("Simulated failure");
   const state = getLearningState();
@@ -142,17 +149,28 @@ export async function askFarmer(accountId: string, courseId: string, lessonId: s
   if (!course) throw new MockServiceError("Isomo ntiribonetse");
   const learnerId = learnerIdFor(state, accountId);
   const language = settingsFor(state, learnerId).language;
-  const grounded = groundedAnswer(course, lessonId, question, "rw");
+  const fallback = featureFallback("farmer_assistant");
+  const grounded = fallback ? { kind: "outside" as const, text: fallback, lesson: null } : groundedAnswer(course, lessonId, question, "rw");
   const best = grounded.kind === "answer" ? grounded.lesson : null;
   const answer = grounded.text;
   const note = language === "en" ? "\n\nThis is a practice answer from your course, not a live adviser." : language === "fr" ? "\n\nCeci est une réponse d'exercice tirée de votre cours." : "";
   const full = `Iki ni igisubizo cy'igerageza, giteguwe mu masomo yemewe. Ntabwo ari AI nyayo.\n\n${answer}${note}`;
   const topic = best?.title ?? cropOf(course.crop).name_rw;
-  mutate((current) => ({
-    ...current,
-    aiQuestions: [{ id: newId("aq"), learnerId, courseId: course.id, lessonId: best?.id ?? lessonId, crop: course.crop, topic, question: question.trim(), answer: full, status: grounded.kind === "answer" ? ("answered" as const) : ("unanswered" as const), rating: null, channel: "web" as const, at: nowIso(), facilitatorNote: "", correction: null, reviewed: false }, ...current.aiQuestions],
-  }));
-  return { answer: full, lessonId: best?.id ?? null, lessonTitle: best?.title ?? null, courseId: course.id };
+  const threadId = chatId ?? newId("chat");
+  const at = nowIso();
+  const trimmed = question.trim();
+  mutate((current) => {
+    const chats = current.chats ?? [];
+    const known = chats.some((chat) => chat.id === threadId);
+    const nextChats = known
+      ? chats.map((chat) => (chat.id === threadId ? { ...chat, updatedAt: at, courseId: course.id } : chat))
+      : [{ id: threadId, learnerId, courseId: course.id, title: trimmed.slice(0, 48), updatedAt: at }, ...chats];
+    const soloId = threadId.startsWith("solo-") ? threadId.slice("solo-".length) : "";
+    const previous = current.aiQuestions.map((item) => (item.id === soloId && !item.chatId ? { ...item, chatId: threadId } : item));
+    const entry = { id: newId("aq"), learnerId, courseId: course.id, lessonId: best?.id ?? lessonId, crop: course.crop, topic, question: trimmed, answer: full, status: grounded.kind === "answer" ? ("answered" as const) : ("unanswered" as const), rating: null, channel: "web" as const, at, facilitatorNote: "", correction: null, reviewed: false, chatId: threadId };
+    return { ...current, chats: nextChats, aiQuestions: [entry, ...previous] };
+  });
+  return { answer: full, lessonId: best?.id ?? null, lessonTitle: best?.title ?? null, courseId: course.id, chatId: threadId };
 }
 
 export function rateAnswer(questionId: string, rating: "helpful" | "not_helpful") {

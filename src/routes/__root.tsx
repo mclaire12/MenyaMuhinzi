@@ -11,6 +11,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
+import { ThemeProvider, useTheme } from "@/components/theme";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import { SiteHeader } from "@/components/site-header";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { subscribe as subscribeLearning } from "@/lib/mock/store";
+import { subscribeAdmin } from "@/lib/admin/store";
 
 function NotFoundComponent() {
   return (
@@ -115,8 +117,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="rw">
+    <html lang="rw" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{if(localStorage.getItem("mm-theme")==="dark"){document.documentElement.classList.add("dark");document.documentElement.style.colorScheme="dark"}}catch(e){}})();` }} />
         <HeadContent />
       </head>
       <body>
@@ -144,24 +147,37 @@ function BasicPhoneGate({ children }: { children: ReactNode }) {
   );
 }
 
+function ThemedToaster() {
+  const { theme } = useTheme();
+  return <Toaster theme={theme} />;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   useEffect(() => subscribeLearning(() => {
     queryClient.invalidateQueries({ queryKey: ["courses"] });
     queryClient.invalidateQueries({ queryKey: ["my-learning"] });
   }), [queryClient]);
+  useEffect(() => {
+    const refresh = () => { void queryClient.invalidateQueries({ queryKey: ["courses"] }); };
+    window.addEventListener("mm-demo-auth", refresh);
+    const stop = subscribeAdmin(refresh);
+    return () => { window.removeEventListener("mm-demo-auth", refresh); stop(); };
+  }, [queryClient]);
 
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <AuthProvider>
-        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-card focus:p-4">Jya ku bikubiyemo</a>
-        <SiteHeader />
-        <main id="main-content">
-          <BasicPhoneGate><Outlet /></BasicPhoneGate>
-        </main>
-        <FarmerDock />
-        <Toaster />
+        <ThemeProvider>
+          <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-card focus:p-4">Jya ku bikubiyemo</a>
+          <SiteHeader />
+          <main id="main-content">
+            <BasicPhoneGate><Outlet /></BasicPhoneGate>
+          </main>
+          <FarmerDock />
+          <ThemedToaster />
+        </ThemeProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

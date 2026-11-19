@@ -5,7 +5,7 @@ import { answerLessonQuestion, checkIvrAnswer, ivrQuestions, sampleQuestions, sa
 import { AudioPlayback, speak, stopSpeaking } from "@/lib/basic-phone/audio";
 import type { Caller } from "@/lib/basic-phone/farmers";
 import { ivrKeys, lessonAudio, partAt, IVR_CALLER_NAME } from "@/lib/basic-phone/ivr";
-import { COMPLETION_THRESHOLD, findLesson, lessonRecord, neighbourLesson, recordListening, startListening, type LessonRef } from "@/lib/basic-phone/progress";
+import { completionThreshold, findLesson, lessonRecord, neighbourLesson, recordListening, startListening, type LessonRef } from "@/lib/basic-phone/progress";
 import { clock, type CallRequest } from "@/lib/basic-phone/ussd";
 import type { Recording } from "@/lib/basic-phone/voice";
 import type { ReviewedAnswer } from "@/lib/mock/services/farmer";
@@ -326,7 +326,7 @@ export function IvrCall({ caller, request, speed, voice, onEnd }: Props) {
             <dt>Isomo</dt><dd>{course?.title ?? "—"}</dd>
             <dt>Igice</dt><dd>{module?.title ?? "—"}</dd>
             <dt>Aho ugeze</dt><dd>{clock(position)} / {clock(duration)} ({Math.round(pct)}%)</dd>
-            <dt>Kurangiza</dt><dd>Ugeze kuri {Math.round(COMPLETION_THRESHOLD * 100)}% by'isomo</dd>
+            <dt>Kurangiza</dt><dd>Ugeze kuri {Math.round(completionThreshold() * 100)}% by'isomo</dd>
             <dt>Imiterere</dt><dd>{lessonRecord(learning, caller.learnerId, ref.lessonId)?.status === "completed" ? "Ryarangiye (ryabitswe)" : lessonStarted ? "Riri kwigwa" : "Ntiriratangira"}</dd>
           </dl>
         </section>

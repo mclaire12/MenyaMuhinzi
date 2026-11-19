@@ -1,7 +1,9 @@
 import { queryOptions } from "@tanstack/react-query";
 import { cropOf } from "@/lib/mock/crops";
 import { getLearningState, MockServiceError, takeSimulatedFailure, wait } from "@/lib/mock/store";
-import { fetchLearnerRecord } from "@/lib/mock/services/learners";
+import { readDemoUser } from "@/lib/demo-auth";
+import { availableCourses } from "@/lib/mock/services/availability";
+import { fetchLearnerRecord, learnerIdFor } from "@/lib/mock/services/learners";
 import type { Course as MockCourse } from "@/lib/mock/types";
 
 export type LessonScene = { id: string; title: string; narration: string; visual: string; subtitle: string; seconds: number };
@@ -49,8 +51,11 @@ export const coursesQuery = queryOptions({
   queryFn: async () => {
     await wait();
     if (takeSimulatedFailure()) throw new MockServiceError("Simulated failure");
-    return getLearningState().courses
-      .filter((course) => course.status === "published")
+    const state = getLearningState();
+    const user = readDemoUser();
+    const staff = user?.role === "admin" || user?.role === "facilitator";
+    const learnerId = user && !staff ? learnerIdFor(state, user.id) : null;
+    return availableCourses(state, { staff, learner: state.farmers.find((farmer) => farmer.id === learnerId) ?? null })
       .map(toCatalogueCourse)
       .sort((a, b) => (a.vegetables?.sort_order ?? 0) - (b.vegetables?.sort_order ?? 0));
   },

@@ -1,3 +1,4 @@
+import { getAdminState } from "@/lib/admin/store";
 import { crops } from "@/lib/mock/crops";
 import { questionsForCourse } from "@/lib/mock/services/farmer";
 import type { CropSlug, LearningState } from "@/lib/mock/types";
@@ -7,7 +8,8 @@ import { courseStanding, enrolledCourses, findLesson, lessonRecord, lessonRefs, 
 /** Illustrative short code for testing; not an officially assigned code. */
 export const USSD_CODE = "*675#";
 export const USSD_MAX_CHARS = 182;
-export const USSD_IDLE_MS = 120_000;
+/** Idle time before a session expires; set in System Operations. */
+export const ussdIdleMs = () => Math.min(600, Math.max(30, getAdminState().channels.sessionTimeoutSec)) * 1000;
 
 export type UssdScreen =
   | { id: "lang" }
@@ -185,10 +187,9 @@ export function renderUssd(session: UssdSession, state: LearningState): UssdView
   switch (screen.id) {
     case "lang": {
       const first = session.caller?.name.split(" ").at(-1) ?? "";
-      return finish([`Murakaza neza kuri MenyaMuhinzi${first ? `, ${first}` : ""}.`, "Hitamo ururimi / Choose language:"], [
-        { key: "1", label: "Kinyarwanda", go: { lang: "rw" } },
-        { key: "2", label: "English", go: { lang: "en" } },
-      ]);
+      const enabled = getAdminState().channels.ussdLanguages;
+      const offered = ([{ lang: "rw", label: "Kinyarwanda" }, { lang: "en", label: "English" }] as const).filter((item) => item.lang === "rw" || enabled.includes(item.lang));
+      return finish([`Murakaza neza kuri MenyaMuhinzi${first ? `, ${first}` : ""}.`, "Hitamo ururimi / Choose language:"], offered.map((item, index) => ({ key: String(index + 1), label: item.label, go: { lang: item.lang } })));
     }
     case "main":
       return finish(["MenyaMuhinzi", t.choose], [
@@ -202,12 +203,12 @@ export function renderUssd(session: UssdSession, state: LearningState): UssdView
     case "crops":
       return finish([t.crop], [...crops.map((crop, i) => ({ key: String(i + 1), label: t.crops[crop.slug], go: { to: { id: "courses", crop: crop.slug, page: 0 } } as Go })), back]);
     case "courses": {
-      const items = publishedCourses(state).filter((course) => course.crop === screen.crop).map((course) => ({ label: clip(course.title, 34), go: { to: { id: "course", courseId: course.id } } as Go }));
+      const items = publishedCourses(state, learnerId).filter((course) => course.crop === screen.crop).map((course) => ({ label: clip(course.title, 34), go: { to: { id: "course", courseId: course.id } } as Go }));
       if (!items.length) return finish([t.none], [back, home]);
       return list([t.coursesOf[screen.crop]], items, screen, [back, home]);
     }
     case "course": {
-      const course = publishedCourses(state).find((item) => item.id === screen.courseId);
+      const course = publishedCourses(state, learnerId).find((item) => item.id === screen.courseId);
       if (!course) return finish([t.gone], [back, home]);
       const standing = courseStanding(state, learnerId, course);
       const enrolled = enrolledCourses(state, learnerId).some((item) => item.id === course.id);
@@ -220,7 +221,7 @@ export function renderUssd(session: UssdSession, state: LearningState): UssdView
       return finish([clip(course.title, 40), t.parts(course.modules.length, standing.total), enrolled ? t.done(standing.done, standing.total) : "", standing.lastScore !== null ? t.score(standing.lastScore) : ""], [...choices, back, home]);
     }
     case "modules": {
-      const course = publishedCourses(state).find((item) => item.id === screen.courseId);
+      const course = publishedCourses(state, learnerId).find((item) => item.id === screen.courseId);
       if (!course) return finish([t.gone], [back, home]);
       const items = course.modules.map((module) => {
         const done = module.lessons.filter((lesson) => lessonRecord(state, learnerId, lesson.id)?.status === "completed").length;
@@ -229,7 +230,7 @@ export function renderUssd(session: UssdSession, state: LearningState): UssdView
       return list([clip(course.title, 34)], items, screen, [back, home]);
     }
     case "lessons": {
-      const course = publishedCourses(state).find((item) => item.id === screen.courseId);
+      const course = publishedCourses(state, learnerId).find((item) => item.id === screen.courseId);
       const module = course?.modules.find((item) => item.id === screen.moduleId);
       if (!course || !module) return finish([t.gone], [back, home]);
       const items = module.lessons.map((lesson) => ({
@@ -285,7 +286,7 @@ export function startUssd(identification: Identification, phone: string, now = D
 }
 
 export function isExpired(session: UssdSession, now = Date.now()) {
-  return session.status === "active" && now - session.lastInputAt > USSD_IDLE_MS;
+  return session.status === "active" && now - session.lastInputAt > ussdIdleMs();
 }
 
 export function expireUssd(session: UssdSession): UssdSession {

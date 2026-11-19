@@ -1,13 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Circle, Headphones, LoaderCircle, PlayCircle, Square } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Circle, Headphones, LoaderCircle, PlayCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { LearningFeedback } from "@/components/learning-ui";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AudioStage, VideoStage } from "@/components/farmer/players";
+import { AudioStage, VideoStage, type LessonTrack } from "@/components/farmer/players";
 import { allLessons, coursesQuery, myLearningQuery } from "@/lib/learning";
 import { useAuth } from "@/hooks/use-auth";
 import { saveLessonProgress } from "@/lib/mock/services/learners";
@@ -26,7 +26,6 @@ function LessonPage() {
   const { data: courses } = coursesState;
   const mineState = useQuery(myLearningQuery(uid));
   const { data: mine } = mineState;
-  const [speaking, setSpeaking] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const course = courses?.find((c) => allLessons(c).some((l) => l.id === lessonId));
@@ -60,16 +59,14 @@ function LessonPage() {
     qc.invalidateQueries({ queryKey: ["my-learning"] });
   }
 
-  function toggleSpeak() {
-    const s = window.speechSynthesis;
-    if (!s || !lesson) { toast.error("Telefoni yawe ntishobora gusoma mu ijwi."); return; }
-    if (speaking) { s.cancel(); setSpeaking(false); return; }
-    const u = new SpeechSynthesisUtterance(`${lesson.title}. ${lesson.body}`);
-    u.lang = "rw-RW";
-    u.onend = () => setSpeaking(false);
-    s.speak(u);
-    setSpeaking(true);
-  }
+  const crop = course.vegetables?.slug ?? "tomato";
+  const track: LessonTrack = {
+    title: lesson.title,
+    text: lesson.narration.trim() || `${lesson.title}. ${lesson.body}`,
+    audio: `/media/lessons/${lesson.id}.wav`,
+    image: `/media/lessons/${lesson.id}.jpg`,
+    fallbackImage: `/media/lessons/${crop}-m1-l1.jpg`,
+  };
 
   return (
     <div className="lesson-page">
@@ -98,20 +95,10 @@ function LessonPage() {
           </div>
         </TabsContent>
         <TabsContent value="watch" className="pt-4">
-          {lesson.video_url ? (
-            <video src={lesson.video_url} controls preload="none" className="w-full rounded-lg" />
-          ) : lesson.scenes.length > 0 ? <VideoStage scenes={lesson.scenes} /> : (
-            <div className="media-empty"><PlayCircle className="size-12 text-primary" aria-hidden /><h2 className="text-2xl">Amashusho azaza vuba</h2><p className="text-sm text-muted-foreground">Amashusho y’iri somo ntarashyirwaho.</p></div>
-          )}
+          {lesson.video_url ? <video src={lesson.video_url} controls preload="none" className="w-full rounded-lg" /> : <VideoStage track={track} />}
         </TabsContent>
         <TabsContent value="listen" className="space-y-4 pt-4">
-          {lesson.audio_url ? (
-            <audio src={lesson.audio_url} controls preload="none" className="w-full" />
-          ) : lesson.narration ? <AudioStage title={lesson.title} narration={lesson.narration} minutes={lesson.duration_minutes} /> : (
-            <Button size="xl" variant="outline" onClick={toggleSpeak}>
-              {speaking ? <Square aria-hidden /> : <Headphones aria-hidden />}{speaking ? "Hagarika" : "Umva isomo"}
-            </Button>
-          )}
+          {lesson.audio_url ? <audio src={lesson.audio_url} controls preload="none" className="w-full" /> : <AudioStage track={track} />}
         </TabsContent>
       </Tabs>
 

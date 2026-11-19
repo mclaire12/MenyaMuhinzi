@@ -57,6 +57,54 @@ export interface FarmerGroup extends Location {
   memberIds: string[];
   createdAt: string;
   activity: { at: string; text: string }[];
+  description?: string;
+  contactPerson?: string;
+  notes?: string;
+  /** Facilitators other than the creator who were explicitly given this group. */
+  managerIds?: string[];
+}
+
+export type TeachingAudience = "beginner" | "intermediate" | "advanced";
+export type TeachingLanguage = "rw" | "en";
+
+export interface TeachingInput {
+  topic: string;
+  crop: CropSlug;
+  audience: TeachingAudience;
+  objectives: string;
+  durationMinutes: number;
+  language: TeachingLanguage;
+  instructions: string;
+}
+
+export type TeachingSectionKind = "intro" | "objectives" | "materials" | "topic" | "examples" | "demonstrations" | "key_points" | "questions" | "summary" | "quiz" | "custom";
+
+export interface TeachingSection {
+  id: string;
+  kind: TeachingSectionKind;
+  heading: string;
+  body: string;
+  minutes: number | null;
+}
+
+export interface TeachingPublication {
+  id: string;
+  groupIds: string[];
+  at: string;
+  by: string;
+}
+
+export interface TeachingMaterial {
+  id: string;
+  facilitatorId: string;
+  input: TeachingInput;
+  title: string;
+  sections: TeachingSection[];
+  status: "draft" | "published" | "archived";
+  variant: number;
+  publications: TeachingPublication[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface VideoScene {
@@ -94,6 +142,23 @@ export interface CourseModule {
   lessons: Lesson[];
 }
 
+export type PublicationScope = "platform" | "groups";
+
+export interface CourseAudience {
+  scope: PublicationScope;
+  /** Administrator targeting groups; empty when the scope is the whole platform. */
+  groupIds: string[];
+}
+
+export interface CoursePublication {
+  id: string;
+  at: string;
+  by: string;
+  action: "published" | "updated" | "unpublished";
+  scope: PublicationScope;
+  groupIds: string[];
+}
+
 export interface Course {
   id: string;
   slug: string;
@@ -112,6 +177,9 @@ export interface Course {
   createdAt: string;
   updatedAt: string;
   publishedAt?: string;
+  /** Missing on older records, which are treated as published to the whole platform. */
+  audience?: CourseAudience;
+  publications?: CoursePublication[];
 }
 
 export type ResourceKind = "image" | "video" | "audio" | "document" | "subtitle";
@@ -245,6 +313,15 @@ export interface AIQuestion {
   facilitatorNote: string;
   correction: { text: string; status: "suggested" | "applied"; by: string; at: string } | null;
   reviewed: boolean;
+  chatId?: string;
+}
+
+export interface FarmerChat {
+  id: string;
+  learnerId: string;
+  courseId: string;
+  title: string;
+  updatedAt: string;
 }
 
 export interface GenerationInput {
@@ -320,7 +397,9 @@ export interface LearningState {
   reviews: ContentReview[];
   revisions: CourseRevision[];
   aiQuestions: AIQuestion[];
+  chats: FarmerChat[];
   generations: AIContentGeneration[];
+  materials: TeachingMaterial[];
   settings: FarmerSettings[];
   noticeReads: NoticeRead[];
   config: MockConfig;

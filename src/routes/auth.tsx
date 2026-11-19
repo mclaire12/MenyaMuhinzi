@@ -89,7 +89,7 @@ function AuthPage() {
         {demoAccounts.map((d) => <button key={d.email} type="button" className="demo-card" onClick={() => { setEmail(d.email); setPassword(d.password); enterDemo(d.email, d.password); }}>
           <Logo className="size-8" />
           <span className="min-w-0"><b>{d.label}</b><small>{d.email}</small></span>
-          <span className="text-[11px] font-bold text-primary">{d.note}</span>
+          <span className="text-xs font-bold text-primary">{d.note}</span>
         </button>)}
       </div>}
       <form onSubmit={submit} className="space-y-5">

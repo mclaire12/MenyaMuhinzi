@@ -37,6 +37,15 @@ export function Bar({ value, label }: { value: number; label?: string }) {
   return <span className="fac-bar" role="img" aria-label={label ?? `${value}%`}><span style={{ width: `${Math.min(100, Math.max(0, value))}%` }} /></span>;
 }
 
+export function ConfirmDialog({ open, onOpenChange, title, text, confirmLabel, onConfirm }: { open: boolean; onOpenChange: (open: boolean) => void; title: string; text: string; confirmLabel: string; onConfirm: () => void }) {
+  return <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialogContent>
+      <AlertDialogHeader><AlertDialogTitle>{title}</AlertDialogTitle><AlertDialogDescription>{text}</AlertDialogDescription></AlertDialogHeader>
+      <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={onConfirm}>{confirmLabel}</AlertDialogAction></AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>;
+}
+
 export function ConfirmButton({ label, title, text, onConfirm, variant = "outline", size = "sm" }: { label: string; title: string; text: string; onConfirm: () => void; variant?: "outline" | "destructive" | "default" | "ghost"; size?: "sm" | "default" }) {
   return <AlertDialog>
     <AlertDialogTrigger asChild><Button variant={variant} size={size}>{label}</Button></AlertDialogTrigger>

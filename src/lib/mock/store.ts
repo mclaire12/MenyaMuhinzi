@@ -16,7 +16,8 @@ function hydrate() {
     if (parsed.version === SEED_VERSION) {
       const seed = seedLearning();
       const farmers = [...parsed.farmers, ...seed.farmers.filter((farmer) => !parsed.farmers.some((item) => item.id === farmer.id || item.phone === farmer.phone))];
-      snapshot = { ...seed, ...parsed, farmers, settings: parsed.settings ?? seed.settings, noticeReads: parsed.noticeReads ?? seed.noticeReads };
+      const groups = [...parsed.groups, ...seed.groups.filter((group) => !parsed.groups.some((item) => item.id === group.id))];
+      snapshot = { ...seed, ...parsed, farmers, groups, settings: parsed.settings ?? seed.settings, noticeReads: parsed.noticeReads ?? seed.noticeReads, chats: parsed.chats ?? seed.chats, materials: parsed.materials ?? seed.materials };
     }
   } catch {
     snapshot = seedLearning();

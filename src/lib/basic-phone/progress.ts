@@ -1,13 +1,17 @@
+import { getAdminState } from "@/lib/admin/store";
 import { enrollLearner, enrollmentsFor, saveLessonProgress, saveListeningPosition } from "@/lib/mock/services/learners";
+import { availableCourses, learnerViewer } from "@/lib/mock/services/availability";
 import { getLearningState } from "@/lib/mock/store";
 import type { Course, LearningState, Lesson } from "@/lib/mock/types";
 
-/** A lesson counts as completed once this share of its audio has been heard. */
-export const COMPLETION_THRESHOLD = 0.9;
+/** Share of a lesson's audio that must be heard before it counts as completed; set in System Operations. */
+export const completionThreshold = () => Math.min(100, Math.max(50, getAdminState().channels.completionPercent)) / 100;
 
 export type LessonRef = { courseId: string; moduleId: string; lessonId: string };
 
-export function publishedCourses(state: LearningState) {
+/** With a learner, only courses published to the whole platform or to a targeting group that matches them. */
+export function publishedCourses(state: LearningState, learnerId?: string) {
+  if (learnerId !== undefined) return availableCourses(state, learnerViewer(state, learnerId));
   return state.courses.filter((course) => course.status === "published");
 }
 
@@ -57,7 +61,7 @@ export function startListening(learnerId: string, ref: LessonRef, positionSec: n
 
 export function recordListening(learnerId: string, ref: LessonRef, positionSec: number, durationSec: number) {
   saveListeningPosition(learnerId, ref.lessonId, positionSec, durationSec, "ivr");
-  const reached = durationSec > 0 && positionSec / durationSec >= COMPLETION_THRESHOLD;
+  const reached = durationSec > 0 && positionSec / durationSec >= completionThreshold();
   const completed = lessonRecord(getLearningState(), learnerId, ref.lessonId)?.status === "completed";
   if (reached && !completed) saveLessonProgress(learnerId, ref.lessonId, "completed", "ivr");
   return reached && !completed;

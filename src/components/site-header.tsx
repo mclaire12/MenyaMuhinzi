@@ -2,6 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { ArrowUpRight, BookOpen, LayoutDashboard, LogOut, Menu, Smartphone, X } from "lucide-react";
 import { Logo } from "@/components/logo";
+import { ThemeToggle } from "@/components/theme";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -28,6 +29,7 @@ export function SiteHeader() {
       <nav aria-label="Ibikubiyemo" className="hidden items-center gap-2 md:flex">{navigation}</nav>
       <div className="flex items-center gap-2">
         <span className="mr-3 hidden text-xs font-bold text-muted-foreground lg:inline">KINYARWANDA</span>
+        <ThemeToggle />
         {user ? <Button variant="outline" onClick={signOut} className="hidden md:inline-flex"><LogOut aria-hidden />Sohoka</Button> : <Button asChild><Link to="/auth">Injira <ArrowUpRight aria-hidden /></Link></Button>}
         <Button variant="ghost" size="icon" className="md:hidden" aria-label={open ? "Funga ibikubiyemo" : "Fungura ibikubiyemo"} aria-expanded={open} aria-controls="mobile-navigation" onClick={() => setOpen(!open)}>{open ? <X /> : <Menu />}</Button>
       </div>

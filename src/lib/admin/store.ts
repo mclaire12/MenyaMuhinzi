@@ -33,6 +33,11 @@ function subscribe(listener: () => void) {
   return () => listeners.delete(listener);
 }
 
+export function subscribeAdmin(listener: () => void) {
+  listeners.add(listener);
+  return () => { listeners.delete(listener); };
+}
+
 export function getAdminState() {
   return snapshot;
 }
@@ -43,6 +48,10 @@ export function useAdmin() {
 
 function uid(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+export function adminId(prefix: string) {
+  return uid(prefix);
 }
 
 export function updateAdmin(actor: string, action: string, resource: string, detail: string, change: (state: AdminState) => AdminState) {

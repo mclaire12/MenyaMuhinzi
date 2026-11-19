@@ -6,7 +6,7 @@ import { logChannelSession } from "@/lib/basic-phone/answers";
 import { identifyCaller, rememberLanguage, type Caller } from "@/lib/basic-phone/farmers";
 import { IVR_CALLER_NAME } from "@/lib/basic-phone/ivr";
 import { findLesson, lessonRecord } from "@/lib/basic-phone/progress";
-import { clock, expireUssd, isExpired, renderUssd, respondUssd, startUssd, USSD_CODE, USSD_IDLE_MS, USSD_MAX_CHARS, type CallRequest, type UssdEffect, type UssdSession } from "@/lib/basic-phone/ussd";
+import { clock, expireUssd, isExpired, renderUssd, respondUssd, startUssd, USSD_CODE, ussdIdleMs, USSD_MAX_CHARS, type CallRequest, type UssdEffect, type UssdSession } from "@/lib/basic-phone/ussd";
 import { getAdminState } from "@/lib/admin/store";
 import { getLearningState, useLearningState } from "@/lib/mock/store";
 
@@ -78,7 +78,10 @@ export function PhoneSimulator({ phone, speed, voice }: Props) {
     const request = callingSession?.call;
     const caller = callingSession?.caller;
     if (!callingSession || !request || !caller) return;
-    const timer = setTimeout(() => setSim({ mode: "ringing", request, caller: { ...caller, language: callingSession.lang }, since: Date.now() }), 2500);
+    const timer = setTimeout(() => {
+      if (getAdminState().channels.ivrStatus === "disabled") { logChannelSession("ivr", caller.phone, "failed", "IVR service switched off by the administrator"); setSim(home("Guhamagarwa ntibishoboka ubu: serivisi ya IVR yahagaritswe.")); return; }
+      setSim({ mode: "ringing", request, caller: { ...caller, language: callingSession.lang }, since: Date.now() });
+    }, 2500);
     return () => clearTimeout(timer);
   }, [callingSession]);
 
@@ -94,6 +97,7 @@ export function PhoneSimulator({ phone, speed, voice }: Props) {
     const code = sim.dial.trim();
     if (!code) { setSim(home(`Andika ${USSD_CODE} hanyuma ukande buto y'icyatsi.`)); return; }
     if (code !== USSD_CODE) { setSim(home(`Kode "${code}" ntizwi. Gerageza ${USSD_CODE}.`)); return; }
+    if (getAdminState().channels.ussdStatus === "disabled") { logChannelSession("ussd", phone ?? "no caller id", "failed", "USSD service switched off by the administrator"); setSim(home("Serivisi ya USSD ntiboneka ubu. Ongera ugerageze nyuma.")); return; }
     const identification = identifyCaller(getAdminState(), getLearningState(), phone);
     const session = startUssd(identification, phone ?? "");
     if (session.status === "ended") logChannelSession("ussd", phone ?? "no caller id", "failed", `Caller rejected: ${identification.kind}`);
@@ -114,6 +118,7 @@ export function PhoneSimulator({ phone, speed, voice }: Props) {
     if (sim.mode !== "ussd") return;
     if (sim.session.status === "active") logChannelSession("ussd", sim.session.phone, "completed", `Cancelled by farmer: ${sim.session.steps.join(" > ")}`);
     if (sim.session.status === "ended" && sim.session.call && sim.session.caller) {
+      if (getAdminState().channels.ivrStatus === "disabled") { logChannelSession("ivr", sim.session.phone, "failed", "IVR service switched off by the administrator"); setSim(home("Guhamagarwa ntibishoboka ubu: serivisi ya IVR yahagaritswe.")); return; }
       setSim({ mode: "ringing", request: sim.session.call, caller: { ...sim.session.caller, language: sim.session.lang }, since: Date.now() });
       return;
     }
@@ -188,7 +193,7 @@ export function PhoneSimulator({ phone, speed, voice }: Props) {
     const session = sim.session;
     const active = session.status === "active";
     const text = active ? renderUssd(session, learning).text : session.endText;
-    const remaining = Math.max(0, USSD_IDLE_MS - (now - session.lastInputAt));
+    const remaining = Math.max(0, ussdIdleMs() - (now - session.lastInputAt));
     return (
       <div className="phone-stage">
         <PhoneFrame status="USSD" onKey={key} onGreen={send} onRed={cancelUssd} greenLabel={active ? "Ohereza" : "OK"} redLabel={active ? "Hagarika" : "Funga"}>

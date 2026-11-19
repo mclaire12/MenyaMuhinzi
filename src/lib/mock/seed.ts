@@ -1,6 +1,7 @@
 import { composeCourse } from "@/lib/mock/ai-compose";
 import { assessmentFromGenerated, courseFromGenerated, courseLessons } from "@/lib/mock/builders";
-import type { AIContentGeneration, AIQuestion, AssessmentAttempt, ContentReview, Course, CourseAssignment, CourseRevision, CropSlug, Farmer, FarmerGroup, GenerationInput, LearningProgress, LearningState, Lesson } from "@/lib/mock/types";
+import { composeSections, composeTitle } from "@/lib/mock/teaching-compose";
+import type { AIContentGeneration, AIQuestion, AssessmentAttempt, ContentReview, Course, CourseAssignment, CourseRevision, CropSlug, Farmer, FarmerGroup, GenerationInput, LearningProgress, LearningState, Lesson, TeachingInput, TeachingMaterial } from "@/lib/mock/types";
 
 const DAY = 86400000;
 const day = (n: number) => new Date(Date.now() - n * DAY).toISOString();
@@ -77,10 +78,27 @@ const farmers: Farmer[] = farmerRows.map(([name, phone, channel, province, distr
 }));
 
 const groups: FarmerGroup[] = [
-  { id: "g1", name: "Abahinzi b'inyanya ba Muhoza", facilitatorId: "fac1", province: "Northern Province", district: "Musanze", sector: "Muhoza", cell: "Mpenge", village: "Rukoro", crop: "tomato", programme: "Inyanya 2026 – Igihembwe A", memberIds: ["f2", "f3", "f8"], createdAt: day(30), activity: [{ at: day(20), text: "Ubuhinzi bw'inyanya bwahawe itsinda" }] },
-  { id: "g2", name: "Koperative Twiteze Imbere", facilitatorId: "fac1", province: "Kigali City", district: "Gasabo", sector: "Kimironko", cell: "Bibare", village: "Imena", crop: "cabbage", programme: "Amashu mu mujyi", memberIds: ["f1", "f6"], createdAt: day(25), activity: [{ at: day(15), text: "Ubuhinzi bw'amashu bwahawe itsinda" }] },
-  { id: "g3", name: "Itsinda rya karoti rya Gisenyi", facilitatorId: "fac1", province: "Western Province", district: "Rubavu", sector: "Gisenyi", cell: "Umuganda", village: "Bugoyi", crop: "carrot", programme: "Karoti ku isoko", memberIds: ["f4", "f5"], createdAt: day(22), activity: [{ at: day(12), text: "Ubuhinzi bwa karoti bwahawe itsinda" }] },
-  { id: "g4", name: "Abahinzi ba Tumba", facilitatorId: "fac2", province: "Southern Province", district: "Huye", sector: "Tumba", cell: "Cyarwa", village: "Gitwa", crop: "mixed", programme: "Imboga z'Amajyepfo", memberIds: ["f9", "f10", "f11"], createdAt: day(28), activity: [] },
+  { id: "g1", name: "Abahinzi b'inyanya ba Muhoza", facilitatorId: "fac1", province: "Northern Province", district: "Musanze", sector: "Muhoza", cell: "Mpenge", village: "Rukoro", crop: "tomato", programme: "Inyanya 2026 – Igihembwe A", description: "Abahinzi b'inyanya bahurira ku isoko rya Muhoza buri wa kabiri.", contactPerson: "Ndayisaba Eric · 0782123402", notes: "Benshi bakoresha telefoni zisanzwe.", memberIds: ["f2", "f3", "f8"], createdAt: day(30), activity: [{ at: day(20), text: "Ubuhinzi bw'inyanya bwahawe itsinda" }] },
+  { id: "g2", name: "Koperative Twiteze Imbere", facilitatorId: "fac1", province: "Kigali City", district: "Gasabo", sector: "Kimironko", cell: "Bibare", village: "Imena", crop: "cabbage", programme: "Amashu mu mujyi", description: "Koperative y'abahinzi b'amashu mu mujyi wa Kigali.", contactPerson: "", notes: "", memberIds: ["f1", "f6"], createdAt: day(25), activity: [{ at: day(15), text: "Ubuhinzi bw'amashu bwahawe itsinda" }] },
+  { id: "g3", name: "Itsinda rya karoti rya Gisenyi", facilitatorId: "fac1", province: "Western Province", district: "Rubavu", sector: "Gisenyi", cell: "Umuganda", village: "Bugoyi", crop: "carrot", programme: "Karoti ku isoko", description: "Abahinzi ba karoti bategura isoko rya Gisenyi.", contactPerson: "Habimana Pierre · 0784123404", notes: "", memberIds: ["f4", "f5"], createdAt: day(22), activity: [{ at: day(12), text: "Ubuhinzi bwa karoti bwahawe itsinda" }] },
+  { id: "g4", name: "Abahinzi ba Tumba", facilitatorId: "fac2", province: "Southern Province", district: "Huye", sector: "Tumba", cell: "Cyarwa", village: "Gitwa", crop: "mixed", programme: "Imboga z'Amajyepfo", description: "Itsinda rikurikiranwa na Mukamana Beatrice.", memberIds: ["f9", "f10", "f11"], createdAt: day(28), activity: [] },
+  { id: "g5", name: "Abahinzi ba Cyuve", facilitatorId: "fac2", managerIds: ["fac1"], province: "Northern Province", district: "Musanze", sector: "Cyuve", cell: "Kabeza", village: "Gakoro", crop: "mixed", programme: "Imboga za Cyuve", description: "Ryashinzwe na Mukamana Beatrice, rihabwa Habimana Jean kurikurikirana.", contactPerson: "Iradukunda Grace · 0781123411", notes: "", memberIds: ["f8", "f13"], createdAt: day(9), activity: [{ at: day(9), text: "Itsinda ryahawe Habimana Jean" }] },
+];
+
+const teachingInput = (topic: string, crop: CropSlug, durationMinutes: number): TeachingInput => ({ topic, crop, audience: "beginner", objectives: "", durationMinutes, language: "rw", instructions: "" });
+
+function seedMaterial(id: string, input: TeachingInput, at: number, groupIds: string[]): TeachingMaterial {
+  return {
+    id, facilitatorId: "fac1", input, title: composeTitle(input), sections: composeSections(input, 0), variant: 0,
+    status: groupIds.length ? "published" : "draft",
+    publications: groupIds.length ? [{ id: `pub-${id}`, groupIds, at: day(at - 1), by: "Habimana Jean" }] : [],
+    createdAt: day(at), updatedAt: day(groupIds.length ? at - 1 : at),
+  };
+}
+
+const materials: TeachingMaterial[] = [
+  seedMaterial("tm1", teachingInput("Kurwanya indwara z'inyanya", "tomato", 90), 6, ["g1"]),
+  seedMaterial("tm2", teachingInput("Gutegura umurima wa karoti", "carrot", 60), 2, []),
 ];
 
 const assignments: CourseAssignment[] = [
@@ -197,7 +215,9 @@ export function seedLearning(): LearningState {
     reviews,
     revisions,
     aiQuestions,
+    chats: [],
     generations,
+    materials,
     settings: [{ learnerId: "f1", language: "rw", notifyNew: true, notifyAssigned: true, notifyReminder: true, notifyResults: true }],
     noticeReads: [],
     config: { latencyMs: 350, failNextLoad: false },
