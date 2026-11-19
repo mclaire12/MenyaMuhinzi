@@ -19,6 +19,7 @@ import { Route as AuthenticatedFacilitatorRouteRouteImport } from './routes/_aut
 import { Route as AuthenticatedManageRouteImport } from './routes/_authenticated/manage'
 import { Route as AuthenticatedMeRouteImport } from './routes/_authenticated/me'
 import { Route as AuthenticatedNoticesRouteImport } from './routes/_authenticated/notices'
+import { Route as AuthenticatedPhoneRouteImport } from './routes/_authenticated/phone'
 import { Route as AuthenticatedProgressRouteImport } from './routes/_authenticated/progress'
 import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
@@ -105,6 +106,11 @@ const AuthenticatedMeRoute = AuthenticatedMeRouteImport.update({
 const AuthenticatedNoticesRoute = AuthenticatedNoticesRouteImport.update({
   id: '/notices',
   path: '/notices',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPhoneRoute = AuthenticatedPhoneRouteImport.update({
+  id: '/phone',
+  path: '/phone',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedProgressRoute = AuthenticatedProgressRouteImport.update({
@@ -333,6 +339,7 @@ export interface FileRoutesByFullPath {
   '/manage': typeof AuthenticatedManageRoute
   '/me': typeof AuthenticatedMeRoute
   '/notices': typeof AuthenticatedNoticesRoute
+  '/phone': typeof AuthenticatedPhoneRoute
   '/progress': typeof AuthenticatedProgressRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/courses/$slug': typeof CoursesSlugRoute
@@ -379,6 +386,7 @@ export interface FileRoutesByTo {
   '/manage': typeof AuthenticatedManageRoute
   '/me': typeof AuthenticatedMeRoute
   '/notices': typeof AuthenticatedNoticesRoute
+  '/phone': typeof AuthenticatedPhoneRoute
   '/progress': typeof AuthenticatedProgressRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/courses/$slug': typeof CoursesSlugRoute
@@ -424,6 +432,7 @@ export interface FileRoutesById {
   '/_authenticated/manage': typeof AuthenticatedManageRoute
   '/_authenticated/me': typeof AuthenticatedMeRoute
   '/_authenticated/notices': typeof AuthenticatedNoticesRoute
+  '/_authenticated/phone': typeof AuthenticatedPhoneRoute
   '/_authenticated/progress': typeof AuthenticatedProgressRoute
   '/_authenticated/studio': typeof AuthenticatedStudioRoute
   '/courses/$slug': typeof CoursesSlugRoute
@@ -474,6 +483,7 @@ export interface FileRouteTypes {
     | '/manage'
     | '/me'
     | '/notices'
+    | '/phone'
     | '/progress'
     | '/studio'
     | '/courses/$slug'
@@ -520,6 +530,7 @@ export interface FileRouteTypes {
     | '/manage'
     | '/me'
     | '/notices'
+    | '/phone'
     | '/progress'
     | '/studio'
     | '/courses/$slug'
@@ -564,6 +575,7 @@ export interface FileRouteTypes {
     | '/_authenticated/manage'
     | '/_authenticated/me'
     | '/_authenticated/notices'
+    | '/_authenticated/phone'
     | '/_authenticated/progress'
     | '/_authenticated/studio'
     | '/courses/$slug'
@@ -681,6 +693,13 @@ declare module '@tanstack/react-router' {
       path: '/notices'
       fullPath: '/notices'
       preLoaderRoute: typeof AuthenticatedNoticesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/phone': {
+      id: '/_authenticated/phone'
+      path: '/phone'
+      fullPath: '/phone'
+      preLoaderRoute: typeof AuthenticatedPhoneRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/progress': {
@@ -1113,6 +1132,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedManageRoute: typeof AuthenticatedManageRoute
   AuthenticatedMeRoute: typeof AuthenticatedMeRoute
   AuthenticatedNoticesRoute: typeof AuthenticatedNoticesRoute
+  AuthenticatedPhoneRoute: typeof AuthenticatedPhoneRoute
   AuthenticatedProgressRoute: typeof AuthenticatedProgressRoute
   AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
   AuthenticatedLessonsLessonIdRoute: typeof AuthenticatedLessonsLessonIdRoute
@@ -1128,6 +1148,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedManageRoute: AuthenticatedManageRoute,
   AuthenticatedMeRoute: AuthenticatedMeRoute,
   AuthenticatedNoticesRoute: AuthenticatedNoticesRoute,
+  AuthenticatedPhoneRoute: AuthenticatedPhoneRoute,
   AuthenticatedProgressRoute: AuthenticatedProgressRoute,
   AuthenticatedStudioRoute: AuthenticatedStudioRoute,
   AuthenticatedLessonsLessonIdRoute: AuthenticatedLessonsLessonIdRoute,

@@ -15,7 +15,8 @@ function hydrate() {
     const parsed = JSON.parse(saved) as LearningState;
     if (parsed.version === SEED_VERSION) {
       const seed = seedLearning();
-      snapshot = { ...seed, ...parsed, settings: parsed.settings ?? seed.settings, noticeReads: parsed.noticeReads ?? seed.noticeReads };
+      const farmers = [...parsed.farmers, ...seed.farmers.filter((farmer) => !parsed.farmers.some((item) => item.id === farmer.id || item.phone === farmer.phone))];
+      snapshot = { ...seed, ...parsed, farmers, settings: parsed.settings ?? seed.settings, noticeReads: parsed.noticeReads ?? seed.noticeReads };
     }
   } catch {
     snapshot = seedLearning();

@@ -15,7 +15,12 @@ function hydrate() {
   if (typeof window === "undefined") return;
   try {
     const saved = localStorage.getItem(KEY);
-    if (saved) snapshot = { ...seedAdmin(), ...JSON.parse(saved) as AdminState };
+    if (saved) {
+      const seed = seedAdmin();
+      const parsed = JSON.parse(saved) as AdminState;
+      const users = parsed.users ?? seed.users;
+      snapshot = { ...seed, ...parsed, users: [...users, ...seed.users.filter((user) => !users.some((item) => item.id === user.id || item.phone === user.phone))] };
+    }
   } catch {
     snapshot = seedAdmin();
   }

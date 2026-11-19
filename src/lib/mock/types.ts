@@ -155,6 +155,8 @@ export interface LearningProgress {
   channel: LearningChannel;
   updatedAt: string;
   completedAt: string | null;
+  positionSec?: number;
+  durationSec?: number;
 }
 
 export type QuestionKind = "choice" | "true_false" | "short";

@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowUpRight, BookOpen, LayoutDashboard, LogOut, Menu, X } from "lucide-react";
+import { ArrowUpRight, BookOpen, LayoutDashboard, LogOut, Menu, Smartphone, X } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,8 @@ export function SiteHeader() {
     await qc.cancelQueries(); qc.clear(); await endSession();
     setOpen(false); navigate({ to: "/auth", replace: true });
   }
-  const navigation = <>
+  const basicPhone = roles.includes("basic_phone_farmer");
+  const navigation = basicPhone ? <Button asChild variant="ghost"><Link to="/phone" activeProps={{ className: "nav-active" }} onClick={() => setOpen(false)}><Smartphone aria-hidden />Telefoni y'igerageza</Link></Button> : <>
     <Button asChild variant="ghost"><Link to="/courses" activeProps={{ className: "nav-active" }} onClick={() => setOpen(false)}><BookOpen aria-hidden />Amasomo</Link></Button>
     {user && !roles.includes("admin") && <Button asChild variant="ghost"><Link to="/dashboard" activeProps={{ className: "nav-active" }} onClick={() => setOpen(false)}><LayoutDashboard aria-hidden />Ibyanjye</Link></Button>}
     {user && roles.includes("admin") && <Button asChild variant="ghost"><Link to="/admin" activeProps={{ className: "nav-active" }} onClick={() => setOpen(false)}>Admin Portal</Link></Button>}

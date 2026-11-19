@@ -65,7 +65,30 @@ export function saveLessonProgress(accountId: string, lessonId: string, status: 
     const at = nowIso();
     const current = state.progress.find((item) => item.learnerId === learnerId && item.lessonId === lessonId);
     if (current?.status === "completed" && status === "in_progress") return state;
-    const next = { learnerId, courseId: course.id, lessonId, status, channel, updatedAt: at, completedAt: status === "completed" ? at : current?.completedAt ?? null };
+    const next = { ...current, learnerId, courseId: course.id, lessonId, status, channel, updatedAt: at, completedAt: status === "completed" ? at : current?.completedAt ?? null };
+    const progress = current ? state.progress.map((item) => (item === current ? next : item)) : [...state.progress, next];
+    return { ...state, progress };
+  });
+}
+
+/** Stores where a listener stopped; a completed lesson stays completed. */
+export function saveListeningPosition(learnerId: string, lessonId: string, positionSec: number, durationSec: number, channel: LearningChannel = "ivr") {
+  mutate((state) => {
+    const course = state.courses.find((item) => courseLessons(item).some((lesson) => lesson.id === lessonId));
+    if (!course) return state;
+    const current = state.progress.find((item) => item.learnerId === learnerId && item.lessonId === lessonId);
+    const next = {
+      ...current,
+      learnerId,
+      courseId: course.id,
+      lessonId,
+      status: current?.status ?? ("in_progress" as const),
+      channel: current?.status === "completed" ? current.channel : channel,
+      updatedAt: nowIso(),
+      completedAt: current?.completedAt ?? null,
+      positionSec: Math.max(0, Math.round(positionSec)),
+      durationSec: Math.round(durationSec),
+    };
     const progress = current ? state.progress.map((item) => (item === current ? next : item)) : [...state.progress, next];
     return { ...state, progress };
   });

@@ -10,7 +10,7 @@ import hero from "@/assets/welcome-garden.webp";
 import { ArrowRight, LoaderCircle } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { useAuth } from "@/hooks/use-auth";
-import { demoAccounts, signInDemo } from "@/lib/demo-auth";
+import { demoAccounts, homeFor, signInDemo } from "@/lib/demo-auth";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -31,14 +31,15 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { user } = useAuth();
+  const { user, roles } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => { if (user) navigate({ to: "/dashboard" }); }, [user, navigate]);
+  useEffect(() => { if (user) navigate({ to: homeFor(roles[0]) }); }, [user, roles, navigate]);
 
   function enterDemo(nextEmail: string, nextPassword: string) {
-    if (!signInDemo(nextEmail, nextPassword)) return false;
-    navigate({ to: "/dashboard" });
+    const session = signInDemo(nextEmail, nextPassword);
+    if (!session) return false;
+    navigate({ to: homeFor(session.role) });
     return true;
   }
 

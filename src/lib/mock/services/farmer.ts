@@ -1,5 +1,6 @@
 import { courseLessons } from "@/lib/mock/builders";
 import { cropOf } from "@/lib/mock/crops";
+import { groundedAnswer } from "@/lib/mock/services/course-answer";
 import { learnerIdFor } from "@/lib/mock/services/learners";
 import { getLearningState, MockServiceError, mutate, newId, nowIso, takeSimulatedFailure, wait } from "@/lib/mock/store";
 import type { AssessmentQuestion, Farmer, FarmerSettings, LearningState } from "@/lib/mock/types";
@@ -118,8 +119,9 @@ export function gradeAnswers(questions: AssessmentQuestion[], answers: Record<st
   return { review, score, missedTopics: review.filter((item) => !item.ok).map((item) => questions.find((question) => question.id === item.id)?.topic ?? item.question) };
 }
 
-export function submitAssessment(accountId: string, courseId: string, answers: Record<string, string>) {
-  const questions = questionsForCourse(getLearningState(), courseId);
+export function submitAssessment(accountId: string, courseId: string, answers: Record<string, string>, questionIds?: string[]) {
+  const all = questionsForCourse(getLearningState(), courseId);
+  const questions = questionIds ? all.filter((question) => questionIds.includes(question.id)) : all;
   const graded = gradeAnswers(questions, answers);
   mutate((state) => {
     const learnerId = learnerIdFor(state, accountId);
@@ -128,12 +130,6 @@ export function submitAssessment(accountId: string, courseId: string, answers: R
     return { ...state, attempts: [attempt, ...state.attempts] };
   });
   return graded;
-}
-
-const stop = new Set(["ni", "gute", "nigute", "ryari", "nahinga", "neza", "ku", "mu", "na", "cyangwa", "iki", "ibyo", "kandi", "nta", "the", "how", "what", "can"]);
-
-function tokens(text: string) {
-  return text.toLowerCase().split(/[^a-z0-9àâäéèêëïîôùûüç]+/i).filter((word) => word.length > 2 && !stop.has(word));
 }
 
 export type AssistantReply = { answer: string; lessonId: string | null; lessonTitle: string | null; courseId: string };
@@ -146,24 +142,15 @@ export async function askFarmer(accountId: string, courseId: string, lessonId: s
   if (!course) throw new MockServiceError("Isomo ntiribonetse");
   const learnerId = learnerIdFor(state, accountId);
   const language = settingsFor(state, learnerId).language;
-  const lessons = courseLessons(course);
-  const focus = lessons.find((lesson) => lesson.id === lessonId) ?? null;
-  const pool = focus ? [focus, ...lessons.filter((lesson) => lesson.id !== focus.id)] : lessons;
-  const asked = tokens(question);
-  const ranked = pool.map((lesson) => ({ lesson, score: tokens(`${lesson.title} ${lesson.body} ${lesson.keyPoints.join(" ")} ${lesson.example}`).filter((word) => asked.includes(word)).length + (focus?.id === lesson.id ? 1 : 0) })).sort((a, b) => b.score - a.score);
-  const best = ranked[0]?.lesson ?? null;
-  const blocked = /(^|\s)(imiti|umuti|muti|doze|npk)(\s|$)|pesticide|fertilizer|ingano y.?ifumbire/i.test(question);
-  const outside = !best || (ranked[0]?.score ?? 0) === 0;
-  let answer: string;
-  if (blocked) answer = "Sinaguhaye umuti cyangwa ingano y'ifumbire. Ibyo bisaba umujyanama w'ubuhinzi. Reba isomo ryo kurinda ibihingwa, ukurikize amabwiriza yemewe.";
-  else if (outside || !best) answer = `Iki kibazo kiri hanze y'isomo "${course.title}". Baza ikintu kiri mu masomo yemewe gusa.`;
-  else answer = [`Mu isomo "${best.title}":`, ...best.keyPoints.slice(0, 3).map((point) => `• ${point}`), best.example ? `Urugero: ${best.example}` : best.body.split(".").slice(0, 2).join(".").trim()].filter(Boolean).join("\n");
+  const grounded = groundedAnswer(course, lessonId, question, "rw");
+  const best = grounded.kind === "answer" ? grounded.lesson : null;
+  const answer = grounded.text;
   const note = language === "en" ? "\n\nThis is a practice answer from your course, not a live adviser." : language === "fr" ? "\n\nCeci est une réponse d'exercice tirée de votre cours." : "";
   const full = `Iki ni igisubizo cy'igerageza, giteguwe mu masomo yemewe. Ntabwo ari AI nyayo.\n\n${answer}${note}`;
   const topic = best?.title ?? cropOf(course.crop).name_rw;
   mutate((current) => ({
     ...current,
-    aiQuestions: [{ id: newId("aq"), learnerId, courseId: course.id, lessonId: best?.id ?? lessonId, crop: course.crop, topic, question: question.trim(), answer: full, status: "answered" as const, rating: null, channel: "web" as const, at: nowIso(), facilitatorNote: "", correction: null, reviewed: false }, ...current.aiQuestions],
+    aiQuestions: [{ id: newId("aq"), learnerId, courseId: course.id, lessonId: best?.id ?? lessonId, crop: course.crop, topic, question: question.trim(), answer: full, status: grounded.kind === "answer" ? ("answered" as const) : ("unanswered" as const), rating: null, channel: "web" as const, at: nowIso(), facilitatorNote: "", correction: null, reviewed: false }, ...current.aiQuestions],
   }));
   return { answer: full, lessonId: best?.id ?? null, lessonTitle: best?.title ?? null, courseId: course.id };
 }

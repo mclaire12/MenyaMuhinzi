@@ -1,4 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { BasicPhoneFarmerForm, emptyBasicPhoneFarmer } from "@/components/admin/basic-phone-form";
+import { learnerForAccount, normalizePhone, registerBasicPhoneFarmer, type BasicPhoneFarmerValues } from "@/lib/basic-phone/farmers";
+import { provinces } from "@/lib/mock/crops";
+import { useLearningState } from "@/lib/mock/store";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { PageHead } from "@/components/admin/shell";
@@ -22,21 +26,36 @@ function People() {
   const [district, setDistrict] = useState("all");
   const [page, setPage] = useState(0);
   const [picked, setPicked] = useState<string[]>([]);
-  const [adding, setAdding] = useState(false);
+  const [adding, setAdding] = useState<"none" | "basic_phone" | "other">("none");
+  const [province, setProvince] = useState("all");
+  const learning = useLearningState();
+  const navigate = useNavigate();
   const rows = useMemo(() => data.users.filter((person) => {
     const farmer = person.role.endsWith("FARMER");
     if (tab === "farmers" && !farmer) return false;
     if (tab === "facilitators" && person.role !== "FACILITATOR") return false;
     if (tab === "roles") return false;
-    const haystack = `${person.name} ${person.phone} ${person.email}`.toLowerCase();
-    if (query && !haystack.includes(query.toLowerCase())) return false;
+    const profile = farmer ? learnerForAccount(learning, person) : null;
+    const haystack = `${person.name} ${person.phone} ${normalizePhone(person.phone)} ${person.email} ${profile ? `${profile.sector} ${profile.cell} ${profile.village}` : ""}`.toLowerCase();
+    const phoneQuery = /\d/.test(query) ? normalizePhone(query) : "";
+    if (query && !haystack.includes(query.toLowerCase()) && !(phoneQuery && haystack.includes(phoneQuery))) return false;
     if (status !== "all" && person.status !== status) return false;
     if (channel !== "all" && person.channel !== channel) return false;
     if (district !== "all" && person.district !== district) return false;
+    if (province !== "all" && (profile?.province ?? Object.keys(provinces).find((name) => provinces[name]?.includes(person.district))) !== province) return false;
     return true;
-  }), [data.users, tab, query, status, channel, district]);
+  }), [data.users, learning, tab, query, status, channel, district, province]);
   const visible = rows.slice(page * 6, page * 6 + 6);
   const districts = [...new Set(data.users.map((person) => person.district))];
+
+  function registerBasic(values: BasicPhoneFarmerValues) {
+    const result = registerBasicPhoneFarmer(actor, values);
+    if ("error" in result) return result.error;
+    setAdding("none");
+    toast.success("Basic-phone farmer registered. They can now dial *675#.");
+    navigate({ to: "/admin/users/$userId", params: { userId: result.accountId } });
+    return null;
+  }
 
   function setAccountStatus(ids: string[], next: AccountStatus) {
     updateAdmin(actor, "set-status", ids.join(","), next, (state) => ({ ...state, users: state.users.map((person) => ids.includes(person.id) ? { ...person, status: next } : person) }));
@@ -53,18 +72,20 @@ function People() {
     const access = String(form.get("channel")) as AccessChannel;
     const role = String(form.get("role"));
     if (name.length < 3 || !/^07\d{8}$/.test(phone)) { toast.error("Enter a full name and a phone number like 07xxxxxxxx."); return; }
+    if (data.users.some((person) => normalizePhone(person.phone) === phone)) { toast.error("This phone number is already registered."); return; }
     const portalRole: PortalRole = role === "facilitator" ? "FACILITATOR" : access === "basic_phone" ? "BASIC_PHONE_FARMER" : "SMARTPHONE_FARMER";
     updateAdmin(actor, "create-user", phone, name, (state) => ({ ...state, users: [{ id: `u-${phone}`, name, phone, email, district: String(form.get("district")), language: "rw", channel: access, role: portalRole, status: "active", registeredAt: new Date().toISOString(), lastActiveAt: new Date().toISOString(), qualification: role === "facilitator" ? "Not reviewed" : "", verified: false, groupId: "", enrollments: [], notes: [] }, ...state.users] }));
-    setAdding(false);
+    setAdding("none");
     toast.success("Person added to the demo records.");
   }
 
   return <>
     <PageHead title="People" text="Farmers do not need an email. Basic-phone farmers are the same farmer record with a different access channel." />
-    <div className="admin-actions mb-4">{(["farmers", "facilitators", "roles"] as const).map((item) => <Button key={item} variant={tab === item ? "default" : "outline"} onClick={() => { setTab(item); setPage(0); }}>{item}</Button>)}<Button variant="outline" onClick={() => setAdding((value) => !value)}>Register</Button></div>
-    {adding && <form className="admin-form admin-panel mb-4 max-w-xl" onSubmit={addPerson}><input name="name" placeholder="Full name" aria-label="Full name" required /><input name="phone" placeholder="07xxxxxxxx" aria-label="Phone" required /><input name="email" placeholder="Email, optional" aria-label="Email" /><input name="district" placeholder="District" aria-label="District" defaultValue="Gasabo" required /><select name="channel" aria-label="Access channel"><option value="smartphone">Smartphone</option><option value="basic_phone">Basic phone</option></select><select name="role" aria-label="Role"><option value="farmer">Farmer</option><option value="facilitator">Facilitator</option></select><Button type="submit">Save person</Button></form>}
+    <div className="admin-actions mb-4">{(["farmers", "facilitators", "roles"] as const).map((item) => <Button key={item} variant={tab === item ? "default" : "outline"} onClick={() => { setTab(item); setPage(0); }}>{item}</Button>)}<Button variant="outline" onClick={() => setAdding((value) => (value === "basic_phone" ? "none" : "basic_phone"))}>Register basic-phone farmer</Button><Button variant="outline" onClick={() => setAdding((value) => (value === "other" ? "none" : "other"))}>Register other</Button><Button asChild variant="ghost"><Link to="/phone">Open phone simulator</Link></Button></div>
+    {adding === "basic_phone" && <BasicPhoneFarmerForm initial={emptyBasicPhoneFarmer()} submitLabel="Register farmer" onSubmit={registerBasic} onCancel={() => setAdding("none")} />}
+    {adding === "other" && <form className="admin-form admin-panel mb-4 max-w-xl" onSubmit={addPerson}><input name="name" placeholder="Full name" aria-label="Full name" required /><input name="phone" placeholder="07xxxxxxxx" aria-label="Phone" required /><input name="email" placeholder="Email, optional" aria-label="Email" /><input name="district" placeholder="District" aria-label="District" defaultValue="Gasabo" required /><input type="hidden" name="channel" value="smartphone" /><select name="role" aria-label="Role"><option value="farmer">Smartphone farmer</option><option value="facilitator">Facilitator</option></select><Button type="submit">Save person</Button></form>}
     {tab === "roles" ? <RoleMatrix actor={actor} /> : <>
-      <div className="admin-filters"><input aria-label="Search people" value={query} placeholder="Search name or phone" onChange={(event) => { setQuery(event.target.value); setPage(0); }} /><select aria-label="Status" value={status} onChange={(event) => setStatus(event.target.value)}><option value="all">All statuses</option><option value="active">Active</option><option value="suspended">Suspended</option><option value="deactivated">Deactivated</option></select><select aria-label="Channel" value={channel} onChange={(event) => setChannel(event.target.value)}><option value="all">All channels</option><option value="smartphone">Smartphone</option><option value="basic_phone">Basic phone</option></select><select aria-label="District" value={district} onChange={(event) => setDistrict(event.target.value)}><option value="all">All districts</option>{districts.map((item) => <option key={item}>{item}</option>)}</select></div>
+      <div className="admin-filters"><input aria-label="Search people" value={query} placeholder="Search name or phone" onChange={(event) => { setQuery(event.target.value); setPage(0); }} /><select aria-label="Status" value={status} onChange={(event) => setStatus(event.target.value)}><option value="all">All statuses</option><option value="active">Active</option><option value="suspended">Suspended</option><option value="deactivated">Deactivated</option></select><select aria-label="Channel" value={channel} onChange={(event) => setChannel(event.target.value)}><option value="all">All channels</option><option value="smartphone">Smartphone</option><option value="basic_phone">Basic phone</option></select><select aria-label="Province" value={province} onChange={(event) => { setProvince(event.target.value); setPage(0); }}><option value="all">All provinces</option>{Object.keys(provinces).map((item) => <option key={item}>{item}</option>)}</select><select aria-label="District" value={district} onChange={(event) => setDistrict(event.target.value)}><option value="all">All districts</option>{districts.map((item) => <option key={item}>{item}</option>)}</select></div>
       {picked.length > 0 && <div className="admin-actions mb-3"><Button onClick={() => setAccountStatus(picked, "suspended")}>Suspend selected</Button><Button variant="outline" onClick={() => setAccountStatus(picked, "active")}>Restore selected</Button></div>}
       {visible.length === 0 ? <p className="admin-panel">No people match these filters.</p> : <div className="staff-table"><table className="w-full text-sm"><thead><tr><th /><th>Name</th><th>Phone</th><th>District</th><th>Channel</th><th>Status</th></tr></thead><tbody>{visible.map((person) => <tr key={person.id}><td><input aria-label={`Select ${person.name}`} type="checkbox" checked={picked.includes(person.id)} onChange={(event) => setPicked(event.target.checked ? [...picked, person.id] : picked.filter((id) => id !== person.id))} /></td><td><Link to="/admin/users/$userId" params={{ userId: person.id }} className="font-bold">{person.name}</Link></td><td>{person.phone}</td><td>{person.district}</td><td>{person.channel === "basic_phone" ? "Basic phone" : "Smartphone"}</td><td>{person.status}</td></tr>)}</tbody></table></div>}
       <div className="admin-actions mt-3"><Button variant="outline" disabled={page === 0} onClick={() => setPage((value) => value - 1)}>Previous</Button><span className="text-sm">{page + 1} / {Math.max(1, Math.ceil(rows.length / 6))}</span><Button variant="outline" disabled={(page + 1) * 6 >= rows.length} onClick={() => setPage((value) => value + 1)}>Next</Button></div>

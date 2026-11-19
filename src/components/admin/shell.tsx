@@ -1,5 +1,5 @@
 import { Link, Outlet } from "@tanstack/react-router";
-import { Bell, BookOpen, Bot, LayoutDashboard, LineChart, Menu, Phone, ScrollText, Settings2, Users, Library } from "lucide-react";
+import { Bell, BookOpen, Bot, LayoutDashboard, LineChart, Menu, Phone, ScrollText, Settings2, Smartphone, Users, Library } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useAdmin } from "@/lib/admin/store";
@@ -11,6 +11,7 @@ const links = [
   { to: "/admin/knowledge", label: "Knowledge", icon: Library, exact: false },
   { to: "/admin/ai", label: "AI engine", icon: Bot, exact: false },
   { to: "/admin/channels", label: "USSD & IVR", icon: Phone, exact: false },
+  { to: "/phone", label: "Phone simulator", icon: Smartphone, exact: false },
   { to: "/admin/learning", label: "Learning", icon: LineChart, exact: false },
   { to: "/admin/reports", label: "Reports", icon: ScrollText, exact: false },
   { to: "/admin/operations", label: "Operations", icon: Settings2, exact: false },

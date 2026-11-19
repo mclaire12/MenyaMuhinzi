@@ -13,6 +13,8 @@ const farmers: PortalUser[] = [
   ["Bizimana Claude", "0788123408", "", "Huye", "smartphone", 20, "g2", 70],
   ["Mukandayisenga Olive", "0789123409", "olive@example.com", "Rubavu", "smartphone", 2, "g3", 33],
   ["Niyonsenga Patrick", "0780123410", "", "Nyagatare", "basic_phone", 4, "", 0],
+  ["Iradukunda Grace", "0781123411", "", "Musanze", "basic_phone", 5, "", 0],
+  ["Mukeshimana Vestine", "0788555100", "", "Musanze", "basic_phone", 0, "", 0],
 ].map((row, i): PortalUser => ({
   id: `f${i + 1}`,
   name: String(row[0]),

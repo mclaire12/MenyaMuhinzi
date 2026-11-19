@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
   type ErrorComponentProps,
@@ -11,7 +12,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
-import { AuthProvider } from "@/hooks/use-auth";
+import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { FarmerDock } from "@/components/farmer/dock";
 import { SiteHeader } from "@/components/site-header";
@@ -126,6 +127,23 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+const basicPhoneOpenPaths = ["/", "/auth", "/phone"];
+
+function BasicPhoneGate({ children }: { children: ReactNode }) {
+  const { roles } = useAuth();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  if (!roles.includes("basic_phone_farmer") || basicPhoneOpenPaths.includes(pathname)) return <>{children}</>;
+  return (
+    <div className="page-width py-16">
+      <div className="mx-auto max-w-lg rounded-2xl border bg-card p-8 text-center">
+        <h1 className="text-2xl font-semibold">Iyi konti ikoresha telefoni isanzwe</h1>
+        <p className="mt-3 text-muted-foreground">Umuhinzi ukoresha telefoni isanzwe yiga akoresheje USSD na IVR gusa. Nta paji z'urubuga agira. Koresha telefoni y'igerageza kugira ngo ukore nka we.</p>
+        <Button asChild className="mt-6"><Link to="/phone">Fungura telefoni y'igerageza</Link></Button>
+      </div>
+    </div>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   useEffect(() => subscribeLearning(() => {
@@ -140,7 +158,7 @@ function RootComponent() {
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-card focus:p-4">Jya ku bikubiyemo</a>
         <SiteHeader />
         <main id="main-content">
-          <Outlet />
+          <BasicPhoneGate><Outlet /></BasicPhoneGate>
         </main>
         <FarmerDock />
         <Toaster />

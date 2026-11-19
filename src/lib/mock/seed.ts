@@ -69,6 +69,7 @@ const farmerRows: [string, string, Farmer["channel"], string, string, string, st
   ["Bizimana Claude", "0788123408", "smartphone", "Southern Province", "Huye", "Tumba", "Mpare", "Nyakagezi", ["tomato"], "fac2"],
   ["Ingabire Diane", "0785123405", "basic_phone", "Southern Province", "Huye", "Ngoma", "Butare", "Kaburemera", ["cabbage"], "fac2"],
   ["Twagirayezu Samuel", "0789123412", "smartphone", "Southern Province", "Nyanza", "Busasamana", "Gahondo", "Rubona", ["tomato"], "fac2"],
+  ["Mukeshimana Vestine", "0788555100", "basic_phone", "Northern Province", "Musanze", "Cyuve", "Kabeza", "Gakoro", ["tomato", "cabbage"], "fac1"],
 ];
 
 const farmers: Farmer[] = farmerRows.map(([name, phone, channel, province, district, sector, cell, village, cropInterest, facilitatorId], i) => ({
