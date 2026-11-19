@@ -13,9 +13,11 @@ import { useEffect, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
+import { FarmerDock } from "@/components/farmer/dock";
 import { SiteHeader } from "@/components/site-header";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { subscribe as subscribeLearning } from "@/lib/mock/store";
 
 function NotFoundComponent() {
   return (
@@ -85,7 +87,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "MenyaMuhinzi — Iga ubuhinzi bw'imboga" },
+      { title: "MenyaMuhinzi" },
       { name: "description", content: "Amasomo y'ubuhinzi bw'inyanya, amashu na karoti mu Kinyarwanda." },
       { property: "og:title", content: "MenyaMuhinzi" },
       { property: "og:description", content: "Amasomo y'ubuhinzi bw'imboga mu Kinyarwanda." },
@@ -126,6 +128,10 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useEffect(() => subscribeLearning(() => {
+    queryClient.invalidateQueries({ queryKey: ["courses"] });
+    queryClient.invalidateQueries({ queryKey: ["my-learning"] });
+  }), [queryClient]);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -136,6 +142,7 @@ function RootComponent() {
         <main id="main-content">
           <Outlet />
         </main>
+        <FarmerDock />
         <Toaster />
       </AuthProvider>
     </QueryClientProvider>

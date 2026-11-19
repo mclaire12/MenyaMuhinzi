@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { LearningFeedback } from "@/components/learning-ui";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AudioStage, VideoStage } from "@/components/farmer/players";
 import { allLessons, coursesQuery, myLearningQuery } from "@/lib/learning";
 import { useAuth } from "@/hooks/use-auth";
-import { supabase } from "@/integrations/supabase/client";
+import { saveLessonProgress } from "@/lib/mock/services/learners";
 
 export const Route = createFileRoute("/_authenticated/lessons/$lessonId")({
   head: () => ({ meta: [{ title: "Kwiga — MenyaMuhinzi" }, { name: "description", content: "Soma, reba cyangwa wumve isomo." }, { property: "og:title", content: "Kwiga — MenyaMuhinzi" }, { property: "og:description", content: "Iga ubuhinzi bw’imboga ku muvuduko wawe." }, { property: "og:type", content: "article" }, { name: "twitter:card", content: "summary" }] }),
@@ -18,8 +19,8 @@ export const Route = createFileRoute("/_authenticated/lessons/$lessonId")({
 
 function LessonPage() {
   const { lessonId } = Route.useParams();
-  const { session } = useAuth();
-  const uid = session?.user.id;
+  const { user } = useAuth();
+  const uid = user?.id;
   const qc = useQueryClient();
   const coursesState = useQuery(coursesQuery);
   const { data: courses } = coursesState;
@@ -33,13 +34,15 @@ function LessonPage() {
   const idx = lessons.findIndex((l) => l.id === lessonId);
   const lesson = lessons[idx];
   const next = lessons[idx + 1];
+  const prev = lessons[idx - 1];
   const done = mine?.progress.some((p) => p.lesson_id === lessonId && p.status === "completed");
+  const started = mine?.progress.some((p) => p.lesson_id === lessonId && p.status === "in_progress");
 
   useEffect(() => {
     if (!uid || !lesson || mine === undefined) return;
     if (mine.progress.some((p) => p.lesson_id === lessonId)) return;
-    supabase.from("lesson_progress").upsert({ user_id: uid, lesson_id: lessonId, status: "in_progress" }, { onConflict: "user_id,lesson_id" })
-      .then(() => qc.invalidateQueries({ queryKey: ["my-learning"] }));
+    saveLessonProgress(uid, lessonId, "in_progress");
+    qc.invalidateQueries({ queryKey: ["my-learning"] });
   }, [uid, lessonId, lesson, mine, qc]);
 
   useEffect(() => () => { if (typeof window !== "undefined") window.speechSynthesis?.cancel(); }, [lessonId]);
@@ -51,12 +54,8 @@ function LessonPage() {
   async function complete() {
     if (!uid) return;
     setSaving(true);
-    const { error } = await supabase.from("lesson_progress").upsert(
-      { user_id: uid, lesson_id: lessonId, status: "completed", completed_at: new Date().toISOString(), updated_at: new Date().toISOString() },
-      { onConflict: "user_id,lesson_id" },
-    );
+    saveLessonProgress(uid, lessonId, "completed");
     setSaving(false);
-    if (error) { toast.error("Ntibyakunze kubika."); return; }
     toast.success("Isomo rirangiye!");
     qc.invalidateQueries({ queryKey: ["my-learning"] });
   }
@@ -75,7 +74,7 @@ function LessonPage() {
   return (
     <div className="lesson-page">
       <Button asChild variant="link" className="px-0"><Link to="/courses/$slug" params={{ slug: course.slug }}><ArrowLeft aria-hidden />{course.title}</Link></Button>
-      <p className="eyebrow mt-6">Isomo {idx + 1} kuri {lessons.length} · Iminota {lesson.duration_minutes}</p>
+      <p className="eyebrow mt-6">Isomo {idx + 1} kuri {lessons.length} · Iminota {lesson.duration_minutes}{done ? " · Byarangiye" : started ? " · Waratangiye" : ""}</p>
       <h1 className="mt-3 text-3xl sm:text-4xl">{lesson.title}</h1>
 
       <div className="lesson-layout"><div>
@@ -86,7 +85,9 @@ function LessonPage() {
           <TabsTrigger value="listen" className="h-12 text-base"><Headphones className="mr-2 size-5" aria-hidden />Umva</TabsTrigger>
         </TabsList>
         <TabsContent value="read" className="space-y-7 pt-6">
-          <p className="text-xl leading-relaxed">{lesson.body}</p>
+          <p className="whitespace-pre-line text-xl leading-relaxed">{lesson.body}</p>
+          {lesson.example && <p className="key-points text-lg"><b>Urugero. </b>{lesson.example}</p>}
+          {lesson.illustration && <p className="text-sm text-muted-foreground">Ifoto: {lesson.illustration}</p>}
           <div className="key-points">
             <h2 className="mb-3 text-xl font-semibold text-secondary-foreground">Ibyo kwibuka</h2>
             <ul className="space-y-2">
@@ -99,14 +100,14 @@ function LessonPage() {
         <TabsContent value="watch" className="pt-4">
           {lesson.video_url ? (
             <video src={lesson.video_url} controls preload="none" className="w-full rounded-lg" />
-          ) : (
+          ) : lesson.scenes.length > 0 ? <VideoStage scenes={lesson.scenes} /> : (
             <div className="media-empty"><PlayCircle className="size-12 text-primary" aria-hidden /><h2 className="text-2xl">Amashusho azaza vuba</h2><p className="text-sm text-muted-foreground">Amashusho y’iri somo ntarashyirwaho.</p></div>
           )}
         </TabsContent>
         <TabsContent value="listen" className="space-y-4 pt-4">
           {lesson.audio_url ? (
             <audio src={lesson.audio_url} controls preload="none" className="w-full" />
-          ) : (
+          ) : lesson.narration ? <AudioStage title={lesson.title} narration={lesson.narration} minutes={lesson.duration_minutes} /> : (
             <Button size="xl" variant="outline" onClick={toggleSpeak}>
               {speaking ? <Square aria-hidden /> : <Headphones aria-hidden />}{speaking ? "Hagarika" : "Umva isomo"}
             </Button>
@@ -120,9 +121,11 @@ function LessonPage() {
         ) : (
           <Button size="xl" disabled={saving} onClick={complete}>{saving ? <LoaderCircle className="animate-spin" aria-hidden /> : <CheckCircle2 aria-hidden />}Narangije isomo</Button>
         )}
+        {prev && <Button asChild size="xl" variant="outline"><Link to="/lessons/$lessonId" params={{ lessonId: prev.id }}><ArrowLeft aria-hidden />Ibanze</Link></Button>}
         {next && (
-          <Button asChild size="xl" variant="outline"><Link to="/lessons/$lessonId" params={{ lessonId: next.id }}>Isomo rikurikira <ArrowRight aria-hidden /></Link></Button>
+          <Button asChild size="xl" variant="outline"><Link to="/lessons/$lessonId" params={{ lessonId: next.id }}>Ikurikira <ArrowRight aria-hidden /></Link></Button>
         )}
+        <Button asChild size="xl" variant="outline"><Link to="/assistant" search={{ course: course.id, lesson: lesson.id }}>Baza ikibazo</Link></Button>
       </div>
       </div><aside className="lesson-aside"><p className="eyebrow mb-4">AMASOMO MURI IKI GICE</p><h2 className="mb-5 text-xl">{course.title}</h2><ul className="space-y-2">{lessons.map((l, i) => <li key={l.id}><Link to="/lessons/$lessonId" params={{ lessonId: l.id }} aria-current={l.id === lessonId ? "page" : undefined} className={`flex items-start gap-3 rounded-md p-3 text-sm transition-colors hover:bg-secondary ${l.id === lessonId ? "bg-secondary font-bold text-primary" : "text-muted-foreground"}`}>{mine?.progress.some(p => p.lesson_id === l.id && p.status === "completed") ? <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden /> : <Circle className="mt-0.5 size-4 shrink-0" aria-hidden />}<span><span className="mb-1 block text-xs">Isomo {i + 1}</span>{l.title}</span></Link></li>)}</ul></aside></div>
     </div>

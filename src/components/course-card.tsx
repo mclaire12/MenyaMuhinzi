@@ -10,6 +10,7 @@ export function CourseCard({ course, pct, enrolled }: { course: Course; pct?: nu
   const crop = course.vegetables?.slug ?? "";
   const img = vegetableImages[crop];
   return <Link to="/courses/$slug" params={{ slug: course.slug }} className="course-card group" data-crop={crop}>
+    <span className="crop-stripe" aria-hidden />
     <div className="relative overflow-hidden">
       {img && <img src={img} alt={course.vegetables?.name_rw ?? ""} loading="lazy" width={944} height={704} className="aspect-[16/10] w-full object-cover transition-transform duration-500 group-hover:scale-105" />}
       <span className="crop-label">{course.vegetables?.name_rw ?? course.level}</span>

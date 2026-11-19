@@ -17,11 +17,11 @@ export const Route = createFileRoute("/_authenticated/studio")({
 });
 
 function Studio() {
-  const { isStaff, roles } = useAuth();
+  const { isStaff, roles, user } = useAuth();
   const coursesState = useQuery(coursesQuery);
   const { data: courses } = coursesState;
   const statsState = useQuery({
-    queryKey: ["studio-stats"], enabled: isStaff,
+    queryKey: ["studio-stats"], enabled: isStaff && !user?.demo,
     queryFn: async () => {
       const [e, p] = await Promise.all([
         supabase.from("enrollments").select("course_id, user_id"),
@@ -70,7 +70,7 @@ function Studio() {
         </Table>
       </div>
       {!courses?.length && <LearningFeedback />}
-      {roles.includes("admin") && <StaffApprovals />}
+      {roles.includes("admin") && !user?.demo && <StaffApprovals />}
       </>}
     </div>
   );

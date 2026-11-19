@@ -12,12 +12,50 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
+import { Route as AuthenticatedAssistantRouteImport } from './routes/_authenticated/assistant'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedFacilitatorRouteRouteImport } from './routes/_authenticated/facilitator/route'
 import { Route as AuthenticatedManageRouteImport } from './routes/_authenticated/manage'
+import { Route as AuthenticatedMeRouteImport } from './routes/_authenticated/me'
+import { Route as AuthenticatedNoticesRouteImport } from './routes/_authenticated/notices'
+import { Route as AuthenticatedProgressRouteImport } from './routes/_authenticated/progress'
 import { Route as AuthenticatedStudioRouteImport } from './routes/_authenticated/studio'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as CoursesSlugRouteImport } from './routes/courses.$slug'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedAdminAiRouteImport } from './routes/_authenticated/admin/ai'
+import { Route as AuthenticatedAdminChannelsRouteImport } from './routes/_authenticated/admin/channels'
+import { Route as AuthenticatedAdminCoursesRouteImport } from './routes/_authenticated/admin/courses'
+import { Route as AuthenticatedAdminKnowledgeRouteImport } from './routes/_authenticated/admin/knowledge'
+import { Route as AuthenticatedAdminLearningRouteImport } from './routes/_authenticated/admin/learning'
+import { Route as AuthenticatedAdminOperationsRouteImport } from './routes/_authenticated/admin/operations'
+import { Route as AuthenticatedAdminReportsRouteImport } from './routes/_authenticated/admin/reports'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
+import { Route as AuthenticatedFacilitatorIndexRouteImport } from './routes/_authenticated/facilitator/index'
+import { Route as AuthenticatedFacilitatorAiFeedbackRouteImport } from './routes/_authenticated/facilitator/ai-feedback'
+import { Route as AuthenticatedFacilitatorAnalyticsRouteImport } from './routes/_authenticated/facilitator/analytics'
+import { Route as AuthenticatedFacilitatorAssignmentsRouteImport } from './routes/_authenticated/facilitator/assignments'
+import { Route as AuthenticatedFacilitatorCoursesRouteImport } from './routes/_authenticated/facilitator/courses'
+import { Route as AuthenticatedFacilitatorFarmersRouteImport } from './routes/_authenticated/facilitator/farmers'
+import { Route as AuthenticatedFacilitatorGroupsRouteImport } from './routes/_authenticated/facilitator/groups'
+import { Route as AuthenticatedFacilitatorMaterialsRouteImport } from './routes/_authenticated/facilitator/materials'
+import { Route as AuthenticatedFacilitatorProfileRouteImport } from './routes/_authenticated/facilitator/profile'
+import { Route as AuthenticatedFacilitatorReportsRouteImport } from './routes/_authenticated/facilitator/reports'
+import { Route as AuthenticatedFacilitatorReviewsRouteImport } from './routes/_authenticated/facilitator/reviews'
+import { Route as AuthenticatedFacilitatorStudioRouteImport } from './routes/_authenticated/facilitator/studio'
 import { Route as AuthenticatedLessonsLessonIdRouteImport } from './routes/_authenticated/lessons.$lessonId'
+import { Route as AuthenticatedQuizCourseIdRouteImport } from './routes/_authenticated/quiz.$courseId'
+import { Route as AuthenticatedAdminCoursesIndexRouteImport } from './routes/_authenticated/admin/courses.index'
+import { Route as AuthenticatedAdminCoursesCourseIdRouteImport } from './routes/_authenticated/admin/courses.$courseId'
+import { Route as AuthenticatedAdminUsersIndexRouteImport } from './routes/_authenticated/admin/users.index'
+import { Route as AuthenticatedAdminUsersUserIdRouteImport } from './routes/_authenticated/admin/users.$userId'
+import { Route as AuthenticatedFacilitatorCoursesIndexRouteImport } from './routes/_authenticated/facilitator/courses.index'
+import { Route as AuthenticatedFacilitatorCoursesCourseIdRouteImport } from './routes/_authenticated/facilitator/courses.$courseId'
+import { Route as AuthenticatedFacilitatorFarmersIndexRouteImport } from './routes/_authenticated/facilitator/farmers.index'
+import { Route as AuthenticatedFacilitatorFarmersFarmerIdRouteImport } from './routes/_authenticated/facilitator/farmers.$farmerId'
+import { Route as AuthenticatedFacilitatorGroupsIndexRouteImport } from './routes/_authenticated/facilitator/groups.index'
+import { Route as AuthenticatedFacilitatorGroupsGroupIdRouteImport } from './routes/_authenticated/facilitator/groups.$groupId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -33,14 +71,45 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAssistantRoute = AuthenticatedAssistantRouteImport.update({
+  id: '/assistant',
+  path: '/assistant',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedFacilitatorRouteRoute =
+  AuthenticatedFacilitatorRouteRouteImport.update({
+    id: '/facilitator',
+    path: '/facilitator',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedManageRoute = AuthenticatedManageRouteImport.update({
   id: '/manage',
   path: '/manage',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMeRoute = AuthenticatedMeRouteImport.update({
+  id: '/me',
+  path: '/me',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedNoticesRoute = AuthenticatedNoticesRouteImport.update({
+  id: '/notices',
+  path: '/notices',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProgressRoute = AuthenticatedProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedStudioRoute = AuthenticatedStudioRouteImport.update({
@@ -58,77 +127,480 @@ const CoursesSlugRoute = CoursesSlugRouteImport.update({
   path: '/courses/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
+const AuthenticatedAdminAiRoute = AuthenticatedAdminAiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
+const AuthenticatedAdminChannelsRoute =
+  AuthenticatedAdminChannelsRouteImport.update({
+    id: '/channels',
+    path: '/channels',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminCoursesRoute =
+  AuthenticatedAdminCoursesRouteImport.update({
+    id: '/courses',
+    path: '/courses',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminKnowledgeRoute =
+  AuthenticatedAdminKnowledgeRouteImport.update({
+    id: '/knowledge',
+    path: '/knowledge',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminLearningRoute =
+  AuthenticatedAdminLearningRouteImport.update({
+    id: '/learning',
+    path: '/learning',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminOperationsRoute =
+  AuthenticatedAdminOperationsRouteImport.update({
+    id: '/operations',
+    path: '/operations',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminReportsRoute =
+  AuthenticatedAdminReportsRouteImport.update({
+    id: '/reports',
+    path: '/reports',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
+const AuthenticatedFacilitatorIndexRoute =
+  AuthenticatedFacilitatorIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedFacilitatorRouteRoute,
+  } as any)
+const AuthenticatedFacilitatorAiFeedbackRoute =
+  AuthenticatedFacilitatorAiFeedbackRouteImport.update({
+    id: '/ai-feedback',
+    path: '/ai-feedback',
+    getParentRoute: () => AuthenticatedFacilitatorRouteRoute,
+  } as any)
+const AuthenticatedFacilitatorAnalyticsRoute =
+  AuthenticatedFacilitatorAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AuthenticatedFacilitatorRouteRoute,
+  } as any)
+const AuthenticatedFacilitatorAssignmentsRoute =
+  AuthenticatedFacilitatorAssignmentsRouteImport.update({
+    id: '/assignments',
+    path: '/assignments',
+    getParentRoute: () => AuthenticatedFacilitatorRouteRoute,
+  } as any)
+const AuthenticatedFacilitatorCoursesRoute =
+  AuthenticatedFacilitatorCoursesRouteImport.update({
+    id: '/courses',
+    path: '/courses',
+    getParentRoute: () => AuthenticatedFacilitatorRouteRoute,
+  } as any)
+const AuthenticatedFacilitatorFarmersRoute =
+  AuthenticatedFacilitatorFarmersRouteImport.update({
+    id: '/farmers',
+    path: '/farmers',
+    getParentRoute: () => AuthenticatedFacilitatorRouteRoute,
+  } as any)
+const AuthenticatedFacilitatorGroupsRoute =
+  AuthenticatedFacilitatorGroupsRouteImport.update({
+    id: '/groups',
+    path: '/groups',
+    getParentRoute: () => AuthenticatedFacilitatorRouteRoute,
+  } as any)
+const AuthenticatedFacilitatorMaterialsRoute =
+  AuthenticatedFacilitatorMaterialsRouteImport.update({
+    id: '/materials',
+    path: '/materials',
+    getParentRoute: () => AuthenticatedFacilitatorRouteRoute,
+  } as any)
+const AuthenticatedFacilitatorProfileRoute =
+  AuthenticatedFacilitatorProfileRouteImport.update({
+    id: '/profile',
+    path: '/profile',
+    getParentRoute: () => AuthenticatedFacilitatorRouteRoute,
+  } as any)
+const AuthenticatedFacilitatorReportsRoute =
+  AuthenticatedFacilitatorReportsRouteImport.update({
+    id: '/reports',
+    path: '/reports',
+    getParentRoute: () => AuthenticatedFacilitatorRouteRoute,
+  } as any)
+const AuthenticatedFacilitatorReviewsRoute =
+  AuthenticatedFacilitatorReviewsRouteImport.update({
+    id: '/reviews',
+    path: '/reviews',
+    getParentRoute: () => AuthenticatedFacilitatorRouteRoute,
+  } as any)
+const AuthenticatedFacilitatorStudioRoute =
+  AuthenticatedFacilitatorStudioRouteImport.update({
+    id: '/studio',
+    path: '/studio',
+    getParentRoute: () => AuthenticatedFacilitatorRouteRoute,
+  } as any)
 const AuthenticatedLessonsLessonIdRoute =
   AuthenticatedLessonsLessonIdRouteImport.update({
     id: '/lessons/$lessonId',
     path: '/lessons/$lessonId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedQuizCourseIdRoute =
+  AuthenticatedQuizCourseIdRouteImport.update({
+    id: '/quiz/$courseId',
+    path: '/quiz/$courseId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminCoursesIndexRoute =
+  AuthenticatedAdminCoursesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminCoursesRoute,
+  } as any)
+const AuthenticatedAdminCoursesCourseIdRoute =
+  AuthenticatedAdminCoursesCourseIdRouteImport.update({
+    id: '/$courseId',
+    path: '/$courseId',
+    getParentRoute: () => AuthenticatedAdminCoursesRoute,
+  } as any)
+const AuthenticatedAdminUsersIndexRoute =
+  AuthenticatedAdminUsersIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminUsersRoute,
+  } as any)
+const AuthenticatedAdminUsersUserIdRoute =
+  AuthenticatedAdminUsersUserIdRouteImport.update({
+    id: '/$userId',
+    path: '/$userId',
+    getParentRoute: () => AuthenticatedAdminUsersRoute,
+  } as any)
+const AuthenticatedFacilitatorCoursesIndexRoute =
+  AuthenticatedFacilitatorCoursesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedFacilitatorCoursesRoute,
+  } as any)
+const AuthenticatedFacilitatorCoursesCourseIdRoute =
+  AuthenticatedFacilitatorCoursesCourseIdRouteImport.update({
+    id: '/$courseId',
+    path: '/$courseId',
+    getParentRoute: () => AuthenticatedFacilitatorCoursesRoute,
+  } as any)
+const AuthenticatedFacilitatorFarmersIndexRoute =
+  AuthenticatedFacilitatorFarmersIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedFacilitatorFarmersRoute,
+  } as any)
+const AuthenticatedFacilitatorFarmersFarmerIdRoute =
+  AuthenticatedFacilitatorFarmersFarmerIdRouteImport.update({
+    id: '/$farmerId',
+    path: '/$farmerId',
+    getParentRoute: () => AuthenticatedFacilitatorFarmersRoute,
+  } as any)
+const AuthenticatedFacilitatorGroupsIndexRoute =
+  AuthenticatedFacilitatorGroupsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedFacilitatorGroupsRoute,
+  } as any)
+const AuthenticatedFacilitatorGroupsGroupIdRoute =
+  AuthenticatedFacilitatorGroupsGroupIdRouteImport.update({
+    id: '/$groupId',
+    path: '/$groupId',
+    getParentRoute: () => AuthenticatedFacilitatorGroupsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/facilitator': typeof AuthenticatedFacilitatorRouteRouteWithChildren
+  '/assistant': typeof AuthenticatedAssistantRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/manage': typeof AuthenticatedManageRoute
+  '/me': typeof AuthenticatedMeRoute
+  '/notices': typeof AuthenticatedNoticesRoute
+  '/progress': typeof AuthenticatedProgressRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/courses/': typeof CoursesIndexRoute
+  '/admin/ai': typeof AuthenticatedAdminAiRoute
+  '/admin/channels': typeof AuthenticatedAdminChannelsRoute
+  '/admin/courses': typeof AuthenticatedAdminCoursesRouteWithChildren
+  '/admin/knowledge': typeof AuthenticatedAdminKnowledgeRoute
+  '/admin/learning': typeof AuthenticatedAdminLearningRoute
+  '/admin/operations': typeof AuthenticatedAdminOperationsRoute
+  '/admin/reports': typeof AuthenticatedAdminReportsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRouteWithChildren
+  '/facilitator/ai-feedback': typeof AuthenticatedFacilitatorAiFeedbackRoute
+  '/facilitator/analytics': typeof AuthenticatedFacilitatorAnalyticsRoute
+  '/facilitator/assignments': typeof AuthenticatedFacilitatorAssignmentsRoute
+  '/facilitator/courses': typeof AuthenticatedFacilitatorCoursesRouteWithChildren
+  '/facilitator/farmers': typeof AuthenticatedFacilitatorFarmersRouteWithChildren
+  '/facilitator/groups': typeof AuthenticatedFacilitatorGroupsRouteWithChildren
+  '/facilitator/materials': typeof AuthenticatedFacilitatorMaterialsRoute
+  '/facilitator/profile': typeof AuthenticatedFacilitatorProfileRoute
+  '/facilitator/reports': typeof AuthenticatedFacilitatorReportsRoute
+  '/facilitator/reviews': typeof AuthenticatedFacilitatorReviewsRoute
+  '/facilitator/studio': typeof AuthenticatedFacilitatorStudioRoute
   '/lessons/$lessonId': typeof AuthenticatedLessonsLessonIdRoute
+  '/quiz/$courseId': typeof AuthenticatedQuizCourseIdRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/facilitator/': typeof AuthenticatedFacilitatorIndexRoute
+  '/admin/courses/$courseId': typeof AuthenticatedAdminCoursesCourseIdRoute
+  '/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
+  '/facilitator/courses/$courseId': typeof AuthenticatedFacilitatorCoursesCourseIdRoute
+  '/facilitator/farmers/$farmerId': typeof AuthenticatedFacilitatorFarmersFarmerIdRoute
+  '/facilitator/groups/$groupId': typeof AuthenticatedFacilitatorGroupsGroupIdRoute
+  '/admin/courses/': typeof AuthenticatedAdminCoursesIndexRoute
+  '/admin/users/': typeof AuthenticatedAdminUsersIndexRoute
+  '/facilitator/courses/': typeof AuthenticatedFacilitatorCoursesIndexRoute
+  '/facilitator/farmers/': typeof AuthenticatedFacilitatorFarmersIndexRoute
+  '/facilitator/groups/': typeof AuthenticatedFacilitatorGroupsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/assistant': typeof AuthenticatedAssistantRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/manage': typeof AuthenticatedManageRoute
+  '/me': typeof AuthenticatedMeRoute
+  '/notices': typeof AuthenticatedNoticesRoute
+  '/progress': typeof AuthenticatedProgressRoute
   '/studio': typeof AuthenticatedStudioRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/courses': typeof CoursesIndexRoute
+  '/admin/ai': typeof AuthenticatedAdminAiRoute
+  '/admin/channels': typeof AuthenticatedAdminChannelsRoute
+  '/admin/knowledge': typeof AuthenticatedAdminKnowledgeRoute
+  '/admin/learning': typeof AuthenticatedAdminLearningRoute
+  '/admin/operations': typeof AuthenticatedAdminOperationsRoute
+  '/admin/reports': typeof AuthenticatedAdminReportsRoute
+  '/facilitator/ai-feedback': typeof AuthenticatedFacilitatorAiFeedbackRoute
+  '/facilitator/analytics': typeof AuthenticatedFacilitatorAnalyticsRoute
+  '/facilitator/assignments': typeof AuthenticatedFacilitatorAssignmentsRoute
+  '/facilitator/materials': typeof AuthenticatedFacilitatorMaterialsRoute
+  '/facilitator/profile': typeof AuthenticatedFacilitatorProfileRoute
+  '/facilitator/reports': typeof AuthenticatedFacilitatorReportsRoute
+  '/facilitator/reviews': typeof AuthenticatedFacilitatorReviewsRoute
+  '/facilitator/studio': typeof AuthenticatedFacilitatorStudioRoute
   '/lessons/$lessonId': typeof AuthenticatedLessonsLessonIdRoute
+  '/quiz/$courseId': typeof AuthenticatedQuizCourseIdRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
+  '/facilitator': typeof AuthenticatedFacilitatorIndexRoute
+  '/admin/courses/$courseId': typeof AuthenticatedAdminCoursesCourseIdRoute
+  '/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
+  '/facilitator/courses/$courseId': typeof AuthenticatedFacilitatorCoursesCourseIdRoute
+  '/facilitator/farmers/$farmerId': typeof AuthenticatedFacilitatorFarmersFarmerIdRoute
+  '/facilitator/groups/$groupId': typeof AuthenticatedFacilitatorGroupsGroupIdRoute
+  '/admin/courses': typeof AuthenticatedAdminCoursesIndexRoute
+  '/admin/users': typeof AuthenticatedAdminUsersIndexRoute
+  '/facilitator/courses': typeof AuthenticatedFacilitatorCoursesIndexRoute
+  '/facilitator/farmers': typeof AuthenticatedFacilitatorFarmersIndexRoute
+  '/facilitator/groups': typeof AuthenticatedFacilitatorGroupsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/_authenticated/facilitator': typeof AuthenticatedFacilitatorRouteRouteWithChildren
+  '/_authenticated/assistant': typeof AuthenticatedAssistantRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/manage': typeof AuthenticatedManageRoute
+  '/_authenticated/me': typeof AuthenticatedMeRoute
+  '/_authenticated/notices': typeof AuthenticatedNoticesRoute
+  '/_authenticated/progress': typeof AuthenticatedProgressRoute
   '/_authenticated/studio': typeof AuthenticatedStudioRoute
   '/courses/$slug': typeof CoursesSlugRoute
   '/courses/': typeof CoursesIndexRoute
+  '/_authenticated/admin/ai': typeof AuthenticatedAdminAiRoute
+  '/_authenticated/admin/channels': typeof AuthenticatedAdminChannelsRoute
+  '/_authenticated/admin/courses': typeof AuthenticatedAdminCoursesRouteWithChildren
+  '/_authenticated/admin/knowledge': typeof AuthenticatedAdminKnowledgeRoute
+  '/_authenticated/admin/learning': typeof AuthenticatedAdminLearningRoute
+  '/_authenticated/admin/operations': typeof AuthenticatedAdminOperationsRoute
+  '/_authenticated/admin/reports': typeof AuthenticatedAdminReportsRoute
+  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRouteWithChildren
+  '/_authenticated/facilitator/ai-feedback': typeof AuthenticatedFacilitatorAiFeedbackRoute
+  '/_authenticated/facilitator/analytics': typeof AuthenticatedFacilitatorAnalyticsRoute
+  '/_authenticated/facilitator/assignments': typeof AuthenticatedFacilitatorAssignmentsRoute
+  '/_authenticated/facilitator/courses': typeof AuthenticatedFacilitatorCoursesRouteWithChildren
+  '/_authenticated/facilitator/farmers': typeof AuthenticatedFacilitatorFarmersRouteWithChildren
+  '/_authenticated/facilitator/groups': typeof AuthenticatedFacilitatorGroupsRouteWithChildren
+  '/_authenticated/facilitator/materials': typeof AuthenticatedFacilitatorMaterialsRoute
+  '/_authenticated/facilitator/profile': typeof AuthenticatedFacilitatorProfileRoute
+  '/_authenticated/facilitator/reports': typeof AuthenticatedFacilitatorReportsRoute
+  '/_authenticated/facilitator/reviews': typeof AuthenticatedFacilitatorReviewsRoute
+  '/_authenticated/facilitator/studio': typeof AuthenticatedFacilitatorStudioRoute
   '/_authenticated/lessons/$lessonId': typeof AuthenticatedLessonsLessonIdRoute
+  '/_authenticated/quiz/$courseId': typeof AuthenticatedQuizCourseIdRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/facilitator/': typeof AuthenticatedFacilitatorIndexRoute
+  '/_authenticated/admin/courses/$courseId': typeof AuthenticatedAdminCoursesCourseIdRoute
+  '/_authenticated/admin/users/$userId': typeof AuthenticatedAdminUsersUserIdRoute
+  '/_authenticated/facilitator/courses/$courseId': typeof AuthenticatedFacilitatorCoursesCourseIdRoute
+  '/_authenticated/facilitator/farmers/$farmerId': typeof AuthenticatedFacilitatorFarmersFarmerIdRoute
+  '/_authenticated/facilitator/groups/$groupId': typeof AuthenticatedFacilitatorGroupsGroupIdRoute
+  '/_authenticated/admin/courses/': typeof AuthenticatedAdminCoursesIndexRoute
+  '/_authenticated/admin/users/': typeof AuthenticatedAdminUsersIndexRoute
+  '/_authenticated/facilitator/courses/': typeof AuthenticatedFacilitatorCoursesIndexRoute
+  '/_authenticated/facilitator/farmers/': typeof AuthenticatedFacilitatorFarmersIndexRoute
+  '/_authenticated/facilitator/groups/': typeof AuthenticatedFacilitatorGroupsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/admin'
+    | '/facilitator'
+    | '/assistant'
     | '/dashboard'
     | '/manage'
+    | '/me'
+    | '/notices'
+    | '/progress'
     | '/studio'
     | '/courses/$slug'
     | '/courses/'
+    | '/admin/ai'
+    | '/admin/channels'
+    | '/admin/courses'
+    | '/admin/knowledge'
+    | '/admin/learning'
+    | '/admin/operations'
+    | '/admin/reports'
+    | '/admin/users'
+    | '/facilitator/ai-feedback'
+    | '/facilitator/analytics'
+    | '/facilitator/assignments'
+    | '/facilitator/courses'
+    | '/facilitator/farmers'
+    | '/facilitator/groups'
+    | '/facilitator/materials'
+    | '/facilitator/profile'
+    | '/facilitator/reports'
+    | '/facilitator/reviews'
+    | '/facilitator/studio'
     | '/lessons/$lessonId'
+    | '/quiz/$courseId'
+    | '/admin/'
+    | '/facilitator/'
+    | '/admin/courses/$courseId'
+    | '/admin/users/$userId'
+    | '/facilitator/courses/$courseId'
+    | '/facilitator/farmers/$farmerId'
+    | '/facilitator/groups/$groupId'
+    | '/admin/courses/'
+    | '/admin/users/'
+    | '/facilitator/courses/'
+    | '/facilitator/farmers/'
+    | '/facilitator/groups/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/assistant'
     | '/dashboard'
     | '/manage'
+    | '/me'
+    | '/notices'
+    | '/progress'
     | '/studio'
     | '/courses/$slug'
     | '/courses'
+    | '/admin/ai'
+    | '/admin/channels'
+    | '/admin/knowledge'
+    | '/admin/learning'
+    | '/admin/operations'
+    | '/admin/reports'
+    | '/facilitator/ai-feedback'
+    | '/facilitator/analytics'
+    | '/facilitator/assignments'
+    | '/facilitator/materials'
+    | '/facilitator/profile'
+    | '/facilitator/reports'
+    | '/facilitator/reviews'
+    | '/facilitator/studio'
     | '/lessons/$lessonId'
+    | '/quiz/$courseId'
+    | '/admin'
+    | '/facilitator'
+    | '/admin/courses/$courseId'
+    | '/admin/users/$userId'
+    | '/facilitator/courses/$courseId'
+    | '/facilitator/farmers/$farmerId'
+    | '/facilitator/groups/$groupId'
+    | '/admin/courses'
+    | '/admin/users'
+    | '/facilitator/courses'
+    | '/facilitator/farmers'
+    | '/facilitator/groups'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/admin'
+    | '/_authenticated/facilitator'
+    | '/_authenticated/assistant'
     | '/_authenticated/dashboard'
     | '/_authenticated/manage'
+    | '/_authenticated/me'
+    | '/_authenticated/notices'
+    | '/_authenticated/progress'
     | '/_authenticated/studio'
     | '/courses/$slug'
     | '/courses/'
+    | '/_authenticated/admin/ai'
+    | '/_authenticated/admin/channels'
+    | '/_authenticated/admin/courses'
+    | '/_authenticated/admin/knowledge'
+    | '/_authenticated/admin/learning'
+    | '/_authenticated/admin/operations'
+    | '/_authenticated/admin/reports'
+    | '/_authenticated/admin/users'
+    | '/_authenticated/facilitator/ai-feedback'
+    | '/_authenticated/facilitator/analytics'
+    | '/_authenticated/facilitator/assignments'
+    | '/_authenticated/facilitator/courses'
+    | '/_authenticated/facilitator/farmers'
+    | '/_authenticated/facilitator/groups'
+    | '/_authenticated/facilitator/materials'
+    | '/_authenticated/facilitator/profile'
+    | '/_authenticated/facilitator/reports'
+    | '/_authenticated/facilitator/reviews'
+    | '/_authenticated/facilitator/studio'
     | '/_authenticated/lessons/$lessonId'
+    | '/_authenticated/quiz/$courseId'
+    | '/_authenticated/admin/'
+    | '/_authenticated/facilitator/'
+    | '/_authenticated/admin/courses/$courseId'
+    | '/_authenticated/admin/users/$userId'
+    | '/_authenticated/facilitator/courses/$courseId'
+    | '/_authenticated/facilitator/farmers/$farmerId'
+    | '/_authenticated/facilitator/groups/$groupId'
+    | '/_authenticated/admin/courses/'
+    | '/_authenticated/admin/users/'
+    | '/_authenticated/facilitator/courses/'
+    | '/_authenticated/facilitator/farmers/'
+    | '/_authenticated/facilitator/groups/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -162,6 +634,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/assistant': {
+      id: '/_authenticated/assistant'
+      path: '/assistant'
+      fullPath: '/assistant'
+      preLoaderRoute: typeof AuthenticatedAssistantRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -169,11 +655,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/facilitator': {
+      id: '/_authenticated/facilitator'
+      path: '/facilitator'
+      fullPath: '/facilitator'
+      preLoaderRoute: typeof AuthenticatedFacilitatorRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/manage': {
       id: '/_authenticated/manage'
       path: '/manage'
       fullPath: '/manage'
       preLoaderRoute: typeof AuthenticatedManageRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/me': {
+      id: '/_authenticated/me'
+      path: '/me'
+      fullPath: '/me'
+      preLoaderRoute: typeof AuthenticatedMeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/notices': {
+      id: '/_authenticated/notices'
+      path: '/notices'
+      fullPath: '/notices'
+      preLoaderRoute: typeof AuthenticatedNoticesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/progress': {
+      id: '/_authenticated/progress'
+      path: '/progress'
+      fullPath: '/progress'
+      preLoaderRoute: typeof AuthenticatedProgressRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/studio': {
@@ -197,6 +711,153 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CoursesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/ai': {
+      id: '/_authenticated/admin/ai'
+      path: '/ai'
+      fullPath: '/admin/ai'
+      preLoaderRoute: typeof AuthenticatedAdminAiRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/channels': {
+      id: '/_authenticated/admin/channels'
+      path: '/channels'
+      fullPath: '/admin/channels'
+      preLoaderRoute: typeof AuthenticatedAdminChannelsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/courses': {
+      id: '/_authenticated/admin/courses'
+      path: '/courses'
+      fullPath: '/admin/courses'
+      preLoaderRoute: typeof AuthenticatedAdminCoursesRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/knowledge': {
+      id: '/_authenticated/admin/knowledge'
+      path: '/knowledge'
+      fullPath: '/admin/knowledge'
+      preLoaderRoute: typeof AuthenticatedAdminKnowledgeRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/learning': {
+      id: '/_authenticated/admin/learning'
+      path: '/learning'
+      fullPath: '/admin/learning'
+      preLoaderRoute: typeof AuthenticatedAdminLearningRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/operations': {
+      id: '/_authenticated/admin/operations'
+      path: '/operations'
+      fullPath: '/admin/operations'
+      preLoaderRoute: typeof AuthenticatedAdminOperationsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/reports': {
+      id: '/_authenticated/admin/reports'
+      path: '/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AuthenticatedAdminReportsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/users': {
+      id: '/_authenticated/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/facilitator/': {
+      id: '/_authenticated/facilitator/'
+      path: '/'
+      fullPath: '/facilitator/'
+      preLoaderRoute: typeof AuthenticatedFacilitatorIndexRouteImport
+      parentRoute: typeof AuthenticatedFacilitatorRouteRoute
+    }
+    '/_authenticated/facilitator/ai-feedback': {
+      id: '/_authenticated/facilitator/ai-feedback'
+      path: '/ai-feedback'
+      fullPath: '/facilitator/ai-feedback'
+      preLoaderRoute: typeof AuthenticatedFacilitatorAiFeedbackRouteImport
+      parentRoute: typeof AuthenticatedFacilitatorRouteRoute
+    }
+    '/_authenticated/facilitator/analytics': {
+      id: '/_authenticated/facilitator/analytics'
+      path: '/analytics'
+      fullPath: '/facilitator/analytics'
+      preLoaderRoute: typeof AuthenticatedFacilitatorAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedFacilitatorRouteRoute
+    }
+    '/_authenticated/facilitator/assignments': {
+      id: '/_authenticated/facilitator/assignments'
+      path: '/assignments'
+      fullPath: '/facilitator/assignments'
+      preLoaderRoute: typeof AuthenticatedFacilitatorAssignmentsRouteImport
+      parentRoute: typeof AuthenticatedFacilitatorRouteRoute
+    }
+    '/_authenticated/facilitator/courses': {
+      id: '/_authenticated/facilitator/courses'
+      path: '/courses'
+      fullPath: '/facilitator/courses'
+      preLoaderRoute: typeof AuthenticatedFacilitatorCoursesRouteImport
+      parentRoute: typeof AuthenticatedFacilitatorRouteRoute
+    }
+    '/_authenticated/facilitator/farmers': {
+      id: '/_authenticated/facilitator/farmers'
+      path: '/farmers'
+      fullPath: '/facilitator/farmers'
+      preLoaderRoute: typeof AuthenticatedFacilitatorFarmersRouteImport
+      parentRoute: typeof AuthenticatedFacilitatorRouteRoute
+    }
+    '/_authenticated/facilitator/groups': {
+      id: '/_authenticated/facilitator/groups'
+      path: '/groups'
+      fullPath: '/facilitator/groups'
+      preLoaderRoute: typeof AuthenticatedFacilitatorGroupsRouteImport
+      parentRoute: typeof AuthenticatedFacilitatorRouteRoute
+    }
+    '/_authenticated/facilitator/materials': {
+      id: '/_authenticated/facilitator/materials'
+      path: '/materials'
+      fullPath: '/facilitator/materials'
+      preLoaderRoute: typeof AuthenticatedFacilitatorMaterialsRouteImport
+      parentRoute: typeof AuthenticatedFacilitatorRouteRoute
+    }
+    '/_authenticated/facilitator/profile': {
+      id: '/_authenticated/facilitator/profile'
+      path: '/profile'
+      fullPath: '/facilitator/profile'
+      preLoaderRoute: typeof AuthenticatedFacilitatorProfileRouteImport
+      parentRoute: typeof AuthenticatedFacilitatorRouteRoute
+    }
+    '/_authenticated/facilitator/reports': {
+      id: '/_authenticated/facilitator/reports'
+      path: '/reports'
+      fullPath: '/facilitator/reports'
+      preLoaderRoute: typeof AuthenticatedFacilitatorReportsRouteImport
+      parentRoute: typeof AuthenticatedFacilitatorRouteRoute
+    }
+    '/_authenticated/facilitator/reviews': {
+      id: '/_authenticated/facilitator/reviews'
+      path: '/reviews'
+      fullPath: '/facilitator/reviews'
+      preLoaderRoute: typeof AuthenticatedFacilitatorReviewsRouteImport
+      parentRoute: typeof AuthenticatedFacilitatorRouteRoute
+    }
+    '/_authenticated/facilitator/studio': {
+      id: '/_authenticated/facilitator/studio'
+      path: '/studio'
+      fullPath: '/facilitator/studio'
+      preLoaderRoute: typeof AuthenticatedFacilitatorStudioRouteImport
+      parentRoute: typeof AuthenticatedFacilitatorRouteRoute
+    }
     '/_authenticated/lessons/$lessonId': {
       id: '/_authenticated/lessons/$lessonId'
       path: '/lessons/$lessonId'
@@ -204,21 +865,273 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLessonsLessonIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/quiz/$courseId': {
+      id: '/_authenticated/quiz/$courseId'
+      path: '/quiz/$courseId'
+      fullPath: '/quiz/$courseId'
+      preLoaderRoute: typeof AuthenticatedQuizCourseIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/courses/': {
+      id: '/_authenticated/admin/courses/'
+      path: '/'
+      fullPath: '/admin/courses/'
+      preLoaderRoute: typeof AuthenticatedAdminCoursesIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminCoursesRoute
+    }
+    '/_authenticated/admin/courses/$courseId': {
+      id: '/_authenticated/admin/courses/$courseId'
+      path: '/$courseId'
+      fullPath: '/admin/courses/$courseId'
+      preLoaderRoute: typeof AuthenticatedAdminCoursesCourseIdRouteImport
+      parentRoute: typeof AuthenticatedAdminCoursesRoute
+    }
+    '/_authenticated/admin/users/': {
+      id: '/_authenticated/admin/users/'
+      path: '/'
+      fullPath: '/admin/users/'
+      preLoaderRoute: typeof AuthenticatedAdminUsersIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminUsersRoute
+    }
+    '/_authenticated/admin/users/$userId': {
+      id: '/_authenticated/admin/users/$userId'
+      path: '/$userId'
+      fullPath: '/admin/users/$userId'
+      preLoaderRoute: typeof AuthenticatedAdminUsersUserIdRouteImport
+      parentRoute: typeof AuthenticatedAdminUsersRoute
+    }
+    '/_authenticated/facilitator/courses/': {
+      id: '/_authenticated/facilitator/courses/'
+      path: '/'
+      fullPath: '/facilitator/courses/'
+      preLoaderRoute: typeof AuthenticatedFacilitatorCoursesIndexRouteImport
+      parentRoute: typeof AuthenticatedFacilitatorCoursesRoute
+    }
+    '/_authenticated/facilitator/courses/$courseId': {
+      id: '/_authenticated/facilitator/courses/$courseId'
+      path: '/$courseId'
+      fullPath: '/facilitator/courses/$courseId'
+      preLoaderRoute: typeof AuthenticatedFacilitatorCoursesCourseIdRouteImport
+      parentRoute: typeof AuthenticatedFacilitatorCoursesRoute
+    }
+    '/_authenticated/facilitator/farmers/': {
+      id: '/_authenticated/facilitator/farmers/'
+      path: '/'
+      fullPath: '/facilitator/farmers/'
+      preLoaderRoute: typeof AuthenticatedFacilitatorFarmersIndexRouteImport
+      parentRoute: typeof AuthenticatedFacilitatorFarmersRoute
+    }
+    '/_authenticated/facilitator/farmers/$farmerId': {
+      id: '/_authenticated/facilitator/farmers/$farmerId'
+      path: '/$farmerId'
+      fullPath: '/facilitator/farmers/$farmerId'
+      preLoaderRoute: typeof AuthenticatedFacilitatorFarmersFarmerIdRouteImport
+      parentRoute: typeof AuthenticatedFacilitatorFarmersRoute
+    }
+    '/_authenticated/facilitator/groups/': {
+      id: '/_authenticated/facilitator/groups/'
+      path: '/'
+      fullPath: '/facilitator/groups/'
+      preLoaderRoute: typeof AuthenticatedFacilitatorGroupsIndexRouteImport
+      parentRoute: typeof AuthenticatedFacilitatorGroupsRoute
+    }
+    '/_authenticated/facilitator/groups/$groupId': {
+      id: '/_authenticated/facilitator/groups/$groupId'
+      path: '/$groupId'
+      fullPath: '/facilitator/groups/$groupId'
+      preLoaderRoute: typeof AuthenticatedFacilitatorGroupsGroupIdRouteImport
+      parentRoute: typeof AuthenticatedFacilitatorGroupsRoute
+    }
   }
 }
 
+interface AuthenticatedAdminCoursesRouteChildren {
+  AuthenticatedAdminCoursesCourseIdRoute: typeof AuthenticatedAdminCoursesCourseIdRoute
+  AuthenticatedAdminCoursesIndexRoute: typeof AuthenticatedAdminCoursesIndexRoute
+}
+
+const AuthenticatedAdminCoursesRouteChildren: AuthenticatedAdminCoursesRouteChildren =
+  {
+    AuthenticatedAdminCoursesCourseIdRoute:
+      AuthenticatedAdminCoursesCourseIdRoute,
+    AuthenticatedAdminCoursesIndexRoute: AuthenticatedAdminCoursesIndexRoute,
+  }
+
+const AuthenticatedAdminCoursesRouteWithChildren =
+  AuthenticatedAdminCoursesRoute._addFileChildren(
+    AuthenticatedAdminCoursesRouteChildren,
+  )
+
+interface AuthenticatedAdminUsersRouteChildren {
+  AuthenticatedAdminUsersUserIdRoute: typeof AuthenticatedAdminUsersUserIdRoute
+  AuthenticatedAdminUsersIndexRoute: typeof AuthenticatedAdminUsersIndexRoute
+}
+
+const AuthenticatedAdminUsersRouteChildren: AuthenticatedAdminUsersRouteChildren =
+  {
+    AuthenticatedAdminUsersUserIdRoute: AuthenticatedAdminUsersUserIdRoute,
+    AuthenticatedAdminUsersIndexRoute: AuthenticatedAdminUsersIndexRoute,
+  }
+
+const AuthenticatedAdminUsersRouteWithChildren =
+  AuthenticatedAdminUsersRoute._addFileChildren(
+    AuthenticatedAdminUsersRouteChildren,
+  )
+
+interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminAiRoute: typeof AuthenticatedAdminAiRoute
+  AuthenticatedAdminChannelsRoute: typeof AuthenticatedAdminChannelsRoute
+  AuthenticatedAdminCoursesRoute: typeof AuthenticatedAdminCoursesRouteWithChildren
+  AuthenticatedAdminKnowledgeRoute: typeof AuthenticatedAdminKnowledgeRoute
+  AuthenticatedAdminLearningRoute: typeof AuthenticatedAdminLearningRoute
+  AuthenticatedAdminOperationsRoute: typeof AuthenticatedAdminOperationsRoute
+  AuthenticatedAdminReportsRoute: typeof AuthenticatedAdminReportsRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRouteWithChildren
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
+  {
+    AuthenticatedAdminAiRoute: AuthenticatedAdminAiRoute,
+    AuthenticatedAdminChannelsRoute: AuthenticatedAdminChannelsRoute,
+    AuthenticatedAdminCoursesRoute: AuthenticatedAdminCoursesRouteWithChildren,
+    AuthenticatedAdminKnowledgeRoute: AuthenticatedAdminKnowledgeRoute,
+    AuthenticatedAdminLearningRoute: AuthenticatedAdminLearningRoute,
+    AuthenticatedAdminOperationsRoute: AuthenticatedAdminOperationsRoute,
+    AuthenticatedAdminReportsRoute: AuthenticatedAdminReportsRoute,
+    AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRouteWithChildren,
+    AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  }
+
+const AuthenticatedAdminRouteRouteWithChildren =
+  AuthenticatedAdminRouteRoute._addFileChildren(
+    AuthenticatedAdminRouteRouteChildren,
+  )
+
+interface AuthenticatedFacilitatorCoursesRouteChildren {
+  AuthenticatedFacilitatorCoursesCourseIdRoute: typeof AuthenticatedFacilitatorCoursesCourseIdRoute
+  AuthenticatedFacilitatorCoursesIndexRoute: typeof AuthenticatedFacilitatorCoursesIndexRoute
+}
+
+const AuthenticatedFacilitatorCoursesRouteChildren: AuthenticatedFacilitatorCoursesRouteChildren =
+  {
+    AuthenticatedFacilitatorCoursesCourseIdRoute:
+      AuthenticatedFacilitatorCoursesCourseIdRoute,
+    AuthenticatedFacilitatorCoursesIndexRoute:
+      AuthenticatedFacilitatorCoursesIndexRoute,
+  }
+
+const AuthenticatedFacilitatorCoursesRouteWithChildren =
+  AuthenticatedFacilitatorCoursesRoute._addFileChildren(
+    AuthenticatedFacilitatorCoursesRouteChildren,
+  )
+
+interface AuthenticatedFacilitatorFarmersRouteChildren {
+  AuthenticatedFacilitatorFarmersFarmerIdRoute: typeof AuthenticatedFacilitatorFarmersFarmerIdRoute
+  AuthenticatedFacilitatorFarmersIndexRoute: typeof AuthenticatedFacilitatorFarmersIndexRoute
+}
+
+const AuthenticatedFacilitatorFarmersRouteChildren: AuthenticatedFacilitatorFarmersRouteChildren =
+  {
+    AuthenticatedFacilitatorFarmersFarmerIdRoute:
+      AuthenticatedFacilitatorFarmersFarmerIdRoute,
+    AuthenticatedFacilitatorFarmersIndexRoute:
+      AuthenticatedFacilitatorFarmersIndexRoute,
+  }
+
+const AuthenticatedFacilitatorFarmersRouteWithChildren =
+  AuthenticatedFacilitatorFarmersRoute._addFileChildren(
+    AuthenticatedFacilitatorFarmersRouteChildren,
+  )
+
+interface AuthenticatedFacilitatorGroupsRouteChildren {
+  AuthenticatedFacilitatorGroupsGroupIdRoute: typeof AuthenticatedFacilitatorGroupsGroupIdRoute
+  AuthenticatedFacilitatorGroupsIndexRoute: typeof AuthenticatedFacilitatorGroupsIndexRoute
+}
+
+const AuthenticatedFacilitatorGroupsRouteChildren: AuthenticatedFacilitatorGroupsRouteChildren =
+  {
+    AuthenticatedFacilitatorGroupsGroupIdRoute:
+      AuthenticatedFacilitatorGroupsGroupIdRoute,
+    AuthenticatedFacilitatorGroupsIndexRoute:
+      AuthenticatedFacilitatorGroupsIndexRoute,
+  }
+
+const AuthenticatedFacilitatorGroupsRouteWithChildren =
+  AuthenticatedFacilitatorGroupsRoute._addFileChildren(
+    AuthenticatedFacilitatorGroupsRouteChildren,
+  )
+
+interface AuthenticatedFacilitatorRouteRouteChildren {
+  AuthenticatedFacilitatorAiFeedbackRoute: typeof AuthenticatedFacilitatorAiFeedbackRoute
+  AuthenticatedFacilitatorAnalyticsRoute: typeof AuthenticatedFacilitatorAnalyticsRoute
+  AuthenticatedFacilitatorAssignmentsRoute: typeof AuthenticatedFacilitatorAssignmentsRoute
+  AuthenticatedFacilitatorCoursesRoute: typeof AuthenticatedFacilitatorCoursesRouteWithChildren
+  AuthenticatedFacilitatorFarmersRoute: typeof AuthenticatedFacilitatorFarmersRouteWithChildren
+  AuthenticatedFacilitatorGroupsRoute: typeof AuthenticatedFacilitatorGroupsRouteWithChildren
+  AuthenticatedFacilitatorMaterialsRoute: typeof AuthenticatedFacilitatorMaterialsRoute
+  AuthenticatedFacilitatorProfileRoute: typeof AuthenticatedFacilitatorProfileRoute
+  AuthenticatedFacilitatorReportsRoute: typeof AuthenticatedFacilitatorReportsRoute
+  AuthenticatedFacilitatorReviewsRoute: typeof AuthenticatedFacilitatorReviewsRoute
+  AuthenticatedFacilitatorStudioRoute: typeof AuthenticatedFacilitatorStudioRoute
+  AuthenticatedFacilitatorIndexRoute: typeof AuthenticatedFacilitatorIndexRoute
+}
+
+const AuthenticatedFacilitatorRouteRouteChildren: AuthenticatedFacilitatorRouteRouteChildren =
+  {
+    AuthenticatedFacilitatorAiFeedbackRoute:
+      AuthenticatedFacilitatorAiFeedbackRoute,
+    AuthenticatedFacilitatorAnalyticsRoute:
+      AuthenticatedFacilitatorAnalyticsRoute,
+    AuthenticatedFacilitatorAssignmentsRoute:
+      AuthenticatedFacilitatorAssignmentsRoute,
+    AuthenticatedFacilitatorCoursesRoute:
+      AuthenticatedFacilitatorCoursesRouteWithChildren,
+    AuthenticatedFacilitatorFarmersRoute:
+      AuthenticatedFacilitatorFarmersRouteWithChildren,
+    AuthenticatedFacilitatorGroupsRoute:
+      AuthenticatedFacilitatorGroupsRouteWithChildren,
+    AuthenticatedFacilitatorMaterialsRoute:
+      AuthenticatedFacilitatorMaterialsRoute,
+    AuthenticatedFacilitatorProfileRoute: AuthenticatedFacilitatorProfileRoute,
+    AuthenticatedFacilitatorReportsRoute: AuthenticatedFacilitatorReportsRoute,
+    AuthenticatedFacilitatorReviewsRoute: AuthenticatedFacilitatorReviewsRoute,
+    AuthenticatedFacilitatorStudioRoute: AuthenticatedFacilitatorStudioRoute,
+    AuthenticatedFacilitatorIndexRoute: AuthenticatedFacilitatorIndexRoute,
+  }
+
+const AuthenticatedFacilitatorRouteRouteWithChildren =
+  AuthenticatedFacilitatorRouteRoute._addFileChildren(
+    AuthenticatedFacilitatorRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+  AuthenticatedFacilitatorRouteRoute: typeof AuthenticatedFacilitatorRouteRouteWithChildren
+  AuthenticatedAssistantRoute: typeof AuthenticatedAssistantRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedManageRoute: typeof AuthenticatedManageRoute
+  AuthenticatedMeRoute: typeof AuthenticatedMeRoute
+  AuthenticatedNoticesRoute: typeof AuthenticatedNoticesRoute
+  AuthenticatedProgressRoute: typeof AuthenticatedProgressRoute
   AuthenticatedStudioRoute: typeof AuthenticatedStudioRoute
   AuthenticatedLessonsLessonIdRoute: typeof AuthenticatedLessonsLessonIdRoute
+  AuthenticatedQuizCourseIdRoute: typeof AuthenticatedQuizCourseIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+  AuthenticatedFacilitatorRouteRoute:
+    AuthenticatedFacilitatorRouteRouteWithChildren,
+  AuthenticatedAssistantRoute: AuthenticatedAssistantRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedManageRoute: AuthenticatedManageRoute,
+  AuthenticatedMeRoute: AuthenticatedMeRoute,
+  AuthenticatedNoticesRoute: AuthenticatedNoticesRoute,
+  AuthenticatedProgressRoute: AuthenticatedProgressRoute,
   AuthenticatedStudioRoute: AuthenticatedStudioRoute,
   AuthenticatedLessonsLessonIdRoute: AuthenticatedLessonsLessonIdRoute,
+  AuthenticatedQuizCourseIdRoute: AuthenticatedQuizCourseIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

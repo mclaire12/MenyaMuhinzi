@@ -1,4 +1,4 @@
-# MenyaMuhinzi — Project status
+# MenyaMuhinzi - Project status
 
 ## Done
 - Phase 0: architecture plan approved
